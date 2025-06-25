@@ -1,0 +1,6 @@
+{
+  "name": "Matechicos",
+  "description": "An interactive educational web application for learning mathematics, designed for grades 1 through 6. Features include grade-specific exercises across various mathematical topics and a customizable avatar.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
