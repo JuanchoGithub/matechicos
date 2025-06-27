@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matechicos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif; /* A common, readable font */
+    }
+    /* Custom scrollbar for better aesthetics if needed */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #4A5568; /* gray-700 */
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background-color: #E2E8F0; /* gray-200 */
+    }
+
+    /* Heart Animations */
+    .heart-pulse {
+      animation: heart-pulse-kf 0.5s ease-in-out forwards;
+    }
+
+    @keyframes heart-pulse-kf {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    .broken-heart-shatter {
+      animation: broken-heart-shatter-kf 0.6s ease-out forwards;
+    }
+
+    @keyframes broken-heart-shatter-kf {
+      0% {
+        opacity: 1;
+        transform: scale(1.1) rotate(-5deg); /* Start slightly larger and tilted after pulse */
+      }
+      20% {
+        transform: scale(1.15) rotate(5deg); /* Small shake */
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.3) rotate(25deg) translateY(20px); /* Shrink, fade, rotate, and fall slightly */
+      }
+    }
+
+    /* Circle Diagram Styles */
+    .circle-diagram-part {
+      cursor: pointer;
+      transition: stroke 0.2s ease-in-out, fill 0.2s ease-in-out, stroke-width 0.2s ease-in-out;
+    }
+
+    /* Default Styles - Lines black, Area light gray */
+    .cp-default-line { stroke: black !important; stroke-width: 2px !important; fill: none !important; }
+    .cp-default-line-arc { stroke: black !important; stroke-width: 3px !important; fill: none !important; }
+    .cp-default-area { fill: rgba(229, 231, 235, 0.7) !important; /* Tailwind gray-200 @ 70% */ stroke: transparent !important; }
+    .cp-default-point { fill: black !important; stroke: none !important; }
+
+    /* Selected Styles (identifyByName mode) - Should override defaults */
+    .cp-selected-line { stroke: rgb(255, 0, 0) !important; stroke-width: 5px !important; }
+    .cp-selected-line-arc { stroke: rgb(255, 0, 0) !important; stroke-width: 6px !important; }
+    .cp-selected-area { fill: rgba(255, 0, 0, 0.5) !important; }
+    .cp-selected-point { fill: rgb(255, 0, 0) !important; stroke: rgb(255,100,100) !important; stroke-width:1px !important; }
+
+    /* Highlighted Styles (nameThePart mode) */
+    .cp-highlighted-line { stroke: rgb(236, 72, 153) !important; stroke-width: 5px !important; }
+    .cp-highlighted-line-arc { stroke: rgb(236, 72, 153) !important; stroke-width: 6px !important; }
+    .cp-highlighted-area { fill: rgba(251, 146, 60, 0.5) !important; } /* Consistent opacity with selected */
+    .cp-highlighted-point { fill: rgb(236, 72, 153) !important; stroke: white !important; stroke-width: 2px !important; }
+
+    /* Trapezoid decomposition animation styles */
+    .trapezoid-part {
+      transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+    }
+    .trapezoid-part.hidden {
+      opacity: 0;
+    }
+    .trapezoid-part.visible {
+      opacity: 1;
+    }
+    .triangle-left.separated {
+      transform: translateX(-10px);
+    }
+    .triangle-right.separated {
+      transform: translateX(10px);
+    }
+
+
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-100">
+  <div id="root"></div>
+  <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+
+
+import { SubjectId, Exercise, ExerciseComponentType, OriginalIconName, FractionEquivalentChallenge, CompareFractionChallenge, OperateFractionChallenge, MixedNumberChallenge, DecimalIntroChallenge, RomanNumeralChallenge, MultiplosDivisoresChallenge, AreaCalculationChallenge, ConversionUnidadesChallenge, TiempoTranscurridoChallenge, VolumenCubosUnitariosChallenge, DiagonalChallenge, NetChallenge, TransformationChallenge, PieChartChallenge, PieChartQuestion, ExperimentoAleatorioChallenge, PrediccionProbabilidadChallenge, DependenciaSucesosChallenge, MeanCalculationChallenge, ModeRangeChallenge, MedirAngulosTransportadorG4Challenge, LinePlotChallengeG4, LinePlotPointG4, LinePlotQuestionG4, FrequencyTableChallengeG4, CreateBarGraphChallengeG4, BarGraphCategoryDataG4 } from './types';
+import { Grade
