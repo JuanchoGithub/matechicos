@@ -1,5 +1,4 @@
-
-import { Exercise, ExerciseComponentType, OriginalIconName, PictogramScenarioTemplate, TableScenarioTemplate } from './types';
+import { Exercise, ExerciseComponentType, OriginalIconName } from "@/types";
 
 const pictogramScenarioAnimalesG2: PictogramScenarioTemplate = {
   scenarioId: "animales_granja_g2s6",

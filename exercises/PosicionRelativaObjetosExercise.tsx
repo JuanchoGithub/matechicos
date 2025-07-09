@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 // import { ExerciseScaffold } from '../../components/ExerciseScaffold'; // Removed
-import { Exercise as ExerciseType, AvatarData, SpatialChallenge, ExerciseScaffoldApi } from '../../types';
-import { Icons } from '../../components/icons';
+import { Exercise as ExerciseType, AvatarData, SpatialChallenge, ExerciseScaffoldApi } from '@/types';
+import { Icons } from '@components';
 
 interface PosicionRelativaObjetosExerciseProps {
   exercise: ExerciseType;

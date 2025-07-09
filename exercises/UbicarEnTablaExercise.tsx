@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ExerciseScaffoldApi } from '../../types'; 
-import { Exercise as ExerciseType, AvatarData, UbicarEnTablaScenarioTemplate, UbicarEnTablaItem, UbicarEnTablaQuestionType } from '../../types';
-import { Icons } from '../../components/icons';
+import { ExerciseScaffoldApi } from '@/types';
+import { Exercise as ExerciseType, AvatarData, UbicarEnTablaScenarioTemplate, UbicarEnTablaItem, UbicarEnTablaQuestionType } from '@/types';
+import { Icons } from '@components';
 
 interface ActiveUbicarEnTablaScenario {
   tableTitle: string;

@@ -1,5 +1,3 @@
-
-
 import React, { useMemo, useEffect, useState, useCallback, useRef } from 'react'; 
 import { GradeLevel, SubjectId, Exercise, ExerciseComponentType, AvatarData, ExerciseScaffoldApi, ComparisonSymbol } from '../../types';
 import { getGradeData, DEFAULT_AVATAR, GRADES_CONFIG } from '../../constants'; 
@@ -42,7 +40,13 @@ import { PerimeterPuzzleBuilderG5Exercise } from '../../exercises/grade5/Perimet
 import { AreaPuzzleBuilderG5Exercise } from '../../exercises/grade5/AreaPuzzleBuilderG5Exercise';
 import { AreaAdventureG5Exercise } from '../../exercises/grade5/AreaAdventureG5Exercise';
 import { VolumeVoyageG5Exercise } from '../../exercises/grade5/VolumeVoyageG5Exercise';
+import { MeasurementDataExplorerG5Exercise } from '../../exercises/grade5/MeasurementDataExplorerG5Exercise';
 
+// Geometria G5
+import { PolygonSortingChallengeG5Exercise } from '../../exercises/grade5/PolygonSortingChallengeG5Exercise';
+import { TriangleQuadExplorerG5Exercise } from '../../exercises/grade5/TriangleQuadExplorerG5Exercise';
+import { Shape3DCounterG5Exercise } from '../../exercises/grade5/Shape3DCounterG5Exercise';
+import { NetsOf3DShapesG5Exercise } from '../../exercises/grade5/NetsOf3DShapesG5Exercise';
 
 // Problemas G5
 import { ProblemasMatematicosGuiadosExercise } from '../../exercises/ProblemasMatematicosGuiadosExercise';
@@ -191,6 +195,20 @@ export const Grade5ExercisePage: React.FC<Grade5ExercisePageProps> = ({ gradeId,
     setCustomKeypadContentG5(keypadNode);
   }, []);
 
+  useEffect(() => {
+    if (exerciseData?.componentType === ExerciseComponentType.COMPARAR_HASTA_10000) {
+      setCustomKeypadContentG5(
+        <ComparisonKeypad
+          onSymbolSelect={handleComparisonSymbolSelectG5}
+          onVerify={handleComparisonVerifyAnswerG5}
+          selectedSymbol={comparisonSelectedSymbolG5}
+          isVerified={comparisonIsVerifiedG5}
+          correctSymbolForFeedback={comparisonChallengeG5?.correctSymbol ?? null}
+        />
+      );
+    }
+  }, [exerciseData, comparisonSelectedSymbolG5, comparisonIsVerifiedG5, comparisonChallengeG5]);
+
   if (!exerciseData) { return ( <div className="p-6 text-center"><p className="text-red-500 text-xl mb-4">Ejercicio no encontrado.</p><button onClick={onNavigateToMain} className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600">Volver al Inicio</button></div> ); }
   
   const scaffoldProps = {
@@ -221,6 +239,7 @@ export const Grade5ExercisePage: React.FC<Grade5ExercisePageProps> = ({ gradeId,
       type === ExerciseComponentType.PERIMETER_PUZZLE_BUILDER_G5 ||
       type === ExerciseComponentType.AREA_ADVENTURE_G5 ||
       type === ExerciseComponentType.AREA_PUZZLE_BUILDER_G5 ||
+      type === ExerciseComponentType.MEASUREMENT_DATA_EXPLORER_G5 ||
       exerciseData.data?.allowDecimal === true
     );
   }, [exerciseData]);
@@ -228,10 +247,28 @@ export const Grade5ExercisePage: React.FC<Grade5ExercisePageProps> = ({ gradeId,
   switch (exerciseData.componentType) {
     // --- Numeros ---
     case ExerciseComponentType.ESCRIBIR_HASTA_10000: mainContentRenderer = (api) => <EscribirHasta10000Exercise {...createExerciseContentProps(api)} />; break;
-    case ExerciseComponentType.COMPARAR_HASTA_10000: mainContentRenderer = () => ( <CompararHasta10000Exercise number1={comparisonChallengeG5?.number1 ?? null} number2={comparisonChallengeG5?.number2 ?? null} selectedSymbol={comparisonSelectedSymbolG5} currentEmoji={comparisonEmojiG5} questionText={exerciseData.question || "¿Cuál es el símbolo correcto?"}/>); setCustomKeypadContentG5(<ComparisonKeypad onSymbolSelect={handleComparisonSymbolSelectG5} onVerify={handleComparisonVerifyAnswerG5} selectedSymbol={comparisonSelectedSymbolG5} isVerified={comparisonIsVerifiedG5} correctSymbolForFeedback={comparisonChallengeG5?.correctSymbol ?? null} />); break;
+    case ExerciseComponentType.COMPARAR_HASTA_10000:
+      mainContentRenderer = () => (
+        <CompararHasta10000Exercise
+          number1={comparisonChallengeG5?.number1 ?? null}
+          number2={comparisonChallengeG5?.number2 ?? null}
+          selectedSymbol={comparisonSelectedSymbolG5}
+          currentEmoji={comparisonEmojiG5}
+          questionText={exerciseData.question || "¿Cuál es el símbolo correcto?"}
+        />
+      );
+      break;
     case ExerciseComponentType.COMPONER_HASTA_10000_TEXTO: mainContentRenderer = (api) => <ComponerHasta10000TextoExercise {...createExerciseContentProps(api)} />; break;
     case ExerciseComponentType.DECIMALES_AVANZADO_G5: mainContentRenderer = (api) => <DecimalesAvanzadoG5Exercise {...createExerciseContentProps(api)} />; break;
-    case ExerciseComponentType.COMPARAR_DECIMALES_G5: mainContentRenderer = (api) => <CompararDecimalesG5Exercise {...createExerciseContentProps(api)} />; break;
+    case ExerciseComponentType.COMPARAR_DECIMALES_G5:
+      mainContentRenderer = (api) => (
+        <CompararDecimalesG5Exercise
+          exercise={exerciseData!}
+          scaffoldApi={api}
+          setCustomKeypadContent={setSidebarContentForExerciseG5}
+        />
+      );
+      break;
     case ExerciseComponentType.ORDENAR_DECIMALES_G5: mainContentRenderer = (api) => <OrdenarDecimalesG5Exercise {...createExerciseContentProps(api)} />; break;
     case ExerciseComponentType.REDONDEAR_DECIMALES_G5: mainContentRenderer = (api) => <RedondearDecimalesG5Exercise {...createExerciseContentProps(api)} />; break;
     case ExerciseComponentType.FRACCION_DE_CANTIDAD_G5: mainContentRenderer = (api) => <FraccionDeCantidadG5Exercise {...createExerciseContentProps(api)} />; break;
@@ -259,6 +296,13 @@ export const Grade5ExercisePage: React.FC<Grade5ExercisePageProps> = ({ gradeId,
     case ExerciseComponentType.AREA_ADVENTURE_G5: mainContentRenderer = (api) => <AreaAdventureG5Exercise {...createExerciseContentProps(api)} />; break;
     case ExerciseComponentType.AREA_PUZZLE_BUILDER_G5: mainContentRenderer = (api) => <AreaPuzzleBuilderG5Exercise {...createExerciseContentProps(api)} />; break;
     case ExerciseComponentType.VOLUMEN_VOYAGE_G5: mainContentRenderer = (api) => <VolumeVoyageG5Exercise {...createExerciseContentProps(api)} />; break;
+    case ExerciseComponentType.MEASUREMENT_DATA_EXPLORER_G5: mainContentRenderer = (api) => <MeasurementDataExplorerG5Exercise {...createExerciseContentProps(api)} />; break;
+
+    // --- Geometria ---
+    case ExerciseComponentType.POLYGON_SORTING_CHALLENGE_G5: mainContentRenderer = (api) => <PolygonSortingChallengeG5Exercise {...createExerciseContentProps(api)} />; break;
+    case ExerciseComponentType.TRIANGLE_QUAD_EXPLORER_G5: mainContentRenderer = (api) => <TriangleQuadExplorerG5Exercise {...createExerciseContentProps(api)} />; break;
+    case ExerciseComponentType.SHAPE_3D_COUNTER_G5: mainContentRenderer = (api) => <Shape3DCounterG5Exercise {...createExerciseContentProps(api)} />; break;
+    case ExerciseComponentType.NETS_OF_3D_SHAPES_G5: mainContentRenderer = (api) => <NetsOf3DShapesG5Exercise {...createExerciseContentProps(api)} />; break;
     
     // --- Problemas ---
     case ExerciseComponentType.PROBLEMAS_PASO_A_PASO: mainContentRenderer = (api) => <ProblemasMatematicosGuiadosExercise {...createExerciseContentProps(api)} />; break;

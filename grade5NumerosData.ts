@@ -1,143 +1,246 @@
+import { Exercise, ExerciseComponentType } from './types';
 
-
-import { Exercise, ExerciseComponentType, OriginalIconName, PlaceValueKey, FractionChallenge, SimplificarFraccionChallenge, MixedNumberChallenge, McdMcmChallenge } from './types'; // Added McdMcmChallenge
-import { shuffleArray } from './utils'; // Assuming utils.ts is in the root or accessible path
-
-// --- Helper to generate simple challenges for placeholder components ---
-const generatePlaceholderChallenges = (count: number, type: string) => 
-    Array.from({length: count}, (_, i) => ({ id: `${type}_${i}`, text: `Desafío ${type} ${i+1}`, options: ["Opción A", "Opción B", "Opción C"], correctAnswer: "Opción A" }));
-
-
+// Ejercicios específicos para Quinto Grado - Números (s1)
+// Este archivo es actualmente un marcador de posición. Los ejercicios se agregarán aquí.
 export const fifthGradeNumerosExercises: Exercise[] = [
-  { 
-    id: 'g5-s1-e1', title: 'Explorando los Millones', 
-    description: 'Lee, escribe y compara números hasta millones.', 
-    iconName: 'NumbersIcon', isLocked: false, 
-    componentType: ExerciseComponentType.ESCRIBIR_HASTA_10000, // Reusing, data will drive behavior
-    data: { totalStars: 10, minNumber: 100000, maxNumber: 9999999, placeValuesToAsk: ['umillon', 'cmil', 'dmil', 'um', 'c', 'd', 'u'] as PlaceValueKey[] },
-    question: 'Escribe el número en cifras:',
+  {
+    id: 'escribir_hasta_10000',
+    title: 'Escribir números hasta 9,999,999',
+    description: 'Practica la escritura de números grandes.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.ESCRIBIR_HASTA_10000,
   },
   {
-    id: 'g5-s1-e1b', title: 'Comparar Millones',
-    description: 'Usa <, =, > para comparar números grandes.',
-    iconName: 'BookOpenIcon', isLocked: false,
+    id: 'comparar_hasta_10000',
+    title: 'Comparar números grandes',
+    description: 'Compara números de hasta 7 cifras.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
     componentType: ExerciseComponentType.COMPARAR_HASTA_10000,
-    data: { totalStars: 10, minNumber: 100000, maxNumber: 9999999},
-    question: 'Compara los números:'
+    data: { minNumber: 100000, maxNumber: 9999999 },
   },
   {
-    id: 'g5-s1-e1c', title: 'Valor Posicional Millonario',
-    description: 'Identifica el valor de las cifras en números millonarios.',
-    iconName: 'OwlIcon', isLocked: false,
+    id: 'componer_hasta_10000_texto',
+    title: 'Componer números en texto',
+    description: 'Descompón y escribe números en palabras.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
     componentType: ExerciseComponentType.COMPONER_HASTA_10000_TEXTO,
-    data: { totalStars: 8, minNumber: 1000000, maxNumber: 9999999, placeValuesToAsk: ['umillon', 'cmil', 'dmil', 'um', 'c', 'd', 'u'] as PlaceValueKey[] },
-    question: 'Descompón el número:',
   },
-  { 
-    id: 'g5-s1-e2', title: 'El Universo de los Decimales', 
-    description: 'Trabaja con décimos, centésimos y milésimos.', 
-    iconName: 'BookOpenIcon', isLocked: false, 
-    componentType: ExerciseComponentType.DECIMALES_AVANZADO_G5, 
-    data: { totalStars: 10, challenges: generatePlaceholderChallenges(10, "decimal_avanzado") },
-    question: '¿Cuál es la representación correcta?',
+  {
+    id: 'decimales_avanzado_g5',
+    title: 'Decimales avanzado',
+    description: 'Trabaja con decimales complejos.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.DECIMALES_AVANZADO_G5,
   },
-  { 
-    id: 'g5-s1-e3', title: 'Simplificar Fracciones', 
-    description: 'Encuentra la forma más simple de una fracción.', 
-    iconName: 'BookOpenIcon', isLocked: false, 
-    componentType: ExerciseComponentType.SIMPLIFICAR_FRACCIONES_G5,
-    data: { 
-        totalStars: 8, 
-        challenges: [
-            { fractionToSimplify: { numerator: 4, denominator: 6 }, options: [ {fraction: { numerator: 2, denominator: 3 }, isCorrect: true}, {fraction: { numerator: 1, denominator: 2 }, isCorrect: false}, {fraction: { numerator: 4, denominator: 6 }, isCorrect: false}, {fraction: { numerator: 3, denominator: 4 }, isCorrect: false} ], correctSimplifiedFraction: { numerator: 2, denominator: 3 }, visualType: 'bar' },
-            { fractionToSimplify: { numerator: 8, denominator: 12 }, options: [ {fraction: { numerator: 2, denominator: 3 }, isCorrect: true}, {fraction: { numerator: 4, denominator: 6 }, isCorrect: false}, {fraction: { numerator: 1, denominator: 2 }, isCorrect: false}, {fraction: { numerator: 3, denominator: 4 }, isCorrect: false} ], correctSimplifiedFraction: { numerator: 2, denominator: 3 }, visualType: 'bar' },
-            { fractionToSimplify: { numerator: 5, denominator: 10 }, options: [ {fraction: { numerator: 1, denominator: 2 }, isCorrect: true}, {fraction: { numerator: 2, denominator: 5 }, isCorrect: false}, {fraction: { numerator: 5, denominator: 10 }, isCorrect: false}, {fraction: { numerator: 1, denominator: 5 }, isCorrect: false} ], correctSimplifiedFraction: { numerator: 1, denominator: 2 }, visualType: 'bar' },
-            { fractionToSimplify: { numerator: 9, denominator: 15 }, options: [ {fraction: { numerator: 3, denominator: 5 }, isCorrect: true}, {fraction: { numerator: 2, denominator: 3 }, isCorrect: false}, {fraction: { numerator: 9, denominator: 15 }, isCorrect: false}, {fraction: { numerator: 1, denominator: 2 }, isCorrect: false} ], correctSimplifiedFraction: { numerator: 3, denominator: 5 } },
-            { fractionToSimplify: { numerator: 6, denominator: 18 }, options: [ {fraction: { numerator: 1, denominator: 3 }, isCorrect: true}, {fraction: { numerator: 2, denominator: 6 }, isCorrect: false}, {fraction: { numerator: 3, denominator: 9 }, isCorrect: false}, {fraction: { numerator: 1, denominator: 2 }, isCorrect: false} ], correctSimplifiedFraction: { numerator: 1, denominator: 3 } },
-            { fractionToSimplify: { numerator: 10, denominator: 25 }, options: [ {fraction: { numerator: 2, denominator: 5 }, isCorrect: true}, {fraction: { numerator: 1, denominator: 5 }, isCorrect: false}, {fraction: { numerator: 10, denominator: 25 }, isCorrect: false}, {fraction: { numerator: 5, denominator: 10 }, isCorrect: false} ], correctSimplifiedFraction: { numerator: 2, denominator: 5 } },
-            { fractionToSimplify: { numerator: 14, denominator: 21 }, options: [ {fraction: { numerator: 2, denominator: 3 }, isCorrect: true}, {fraction: { numerator: 7, denominator: 10 }, isCorrect: false}, {fraction: { numerator: 1, denominator: 3 }, isCorrect: false}, {fraction: { numerator: 14, denominator: 21 }, isCorrect: false} ], correctSimplifiedFraction: { numerator: 2, denominator: 3 } },
-            { fractionToSimplify: { numerator: 12, denominator: 16 }, options: [ {fraction: { numerator: 3, denominator: 4 }, isCorrect: true}, {fraction: { numerator: 6, denominator: 8 }, isCorrect: false}, {fraction: { numerator: 1, denominator: 2 }, isCorrect: false}, {fraction: { numerator: 2, denominator: 3 }, isCorrect: false} ], correctSimplifiedFraction: { numerator: 3, denominator: 4 } },
-        ] as SimplificarFraccionChallenge[]
-    },
-    question: 'Encuentra la forma más simple de la fracción:',
+  {
+    id: 'comparar_decimales_g5',
+    title: 'Comparar decimales',
+    description: 'Compara números decimales.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.COMPARAR_DECIMALES_G5,
   },
-  { 
-    id: 'g5-s1-e4', title: 'Números Mixtos y Fracciones Impropias (Avanzado)', 
-    description: 'Convierte entre fracciones impropias y números mixtos (valores mayores).', 
-    iconName: 'BookOpenIcon', isLocked: false, 
-    componentType: ExerciseComponentType.NUMEROS_MIXTOS_AVANZADO_G5, 
-    data: { 
-        totalStars: 10, 
-        challenges: [
-            { question: "4 2/5", type: 'mixed_to_improper', options: ["22/5", "20/5", "18/5", "24/5"], correctAnswer: "22/5" },
-            { question: "17/3", type: 'improper_to_mixed', options: ["5 2/3", "5 1/3", "6 1/3", "4 5/3"], correctAnswer: "5 2/3" },
-            { question: "2 7/8", type: 'mixed_to_improper', options: ["23/8", "16/8", "25/8", "20/8"], correctAnswer: "23/8" },
-            { question: "31/6", type: 'improper_to_mixed', options: ["5 1/6", "5 5/6", "4 7/6", "6 1/6"], correctAnswer: "5 1/6" },
-            { question: "1 5/12", type: 'mixed_to_improper', options: ["17/12", "12/12", "10/12", "20/12"], correctAnswer: "17/12" },
-            { question: "29/4", type: 'improper_to_mixed', options: ["7 1/4", "7 0/4", "6 5/4", "8 1/4"], correctAnswer: "7 1/4" },
-            { question: "5 3/7", type: 'mixed_to_improper', options: ["38/7", "35/7", "30/7", "40/7"], correctAnswer: "38/7" },
-            { question: "43/5", type: 'improper_to_mixed', options: ["8 3/5", "8 2/5", "7 8/5", "9 3/5"], correctAnswer: "8 3/5" },
-            { question: "3 5/9", type: 'mixed_to_improper', options: ["32/9", "27/9", "30/9", "35/9"], correctAnswer: "32/9" },
-            { question: "50/8", type: 'improper_to_mixed', options: ["6 2/8", "6 0/8", "5 10/8", "7 2/8"], correctAnswer: "6 2/8" }, // Could be 6 1/4
-        ] as MixedNumberChallenge[]
-    },
-    question: 'Convierte o identifica:',
+  {
+    id: 'ordenar_decimales_g5',
+    title: 'Ordenar decimales',
+    description: 'Ordena números decimales.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.ORDENAR_DECIMALES_G5,
   },
-  { 
-    id: 'g5-s1-e5', title: 'Fracción de una Cantidad (Nivel Experto)', 
-    description: 'Calcula la fracción de números enteros mayores.', 
-    iconName: 'OperationsIcon', isLocked: false, 
-    componentType: ExerciseComponentType.FRACCION_DE_CANTIDAD_G5, 
-    data: { totalStars: 10, challenges: generatePlaceholderChallenges(10, "fraccion_cantidad") },
-    question: 'Calcula la fracción de la cantidad:',
+  {
+    id: 'redondear_decimales_g5',
+    title: 'Redondear decimales',
+    description: 'Redondea números decimales.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.REDONDEAR_DECIMALES_G5,
   },
-  { 
-    id: 'g5-s1-e6', title: 'Detectives de Primos y Compuestos', 
-    description: 'Identifica números primos y compuestos.', 
-    iconName: 'NumbersIcon', isLocked: false, 
-    componentType: ExerciseComponentType.PRIMOS_COMPUESTOS_G5, 
-    data: { totalStars: 15, numberRange: [2, 100] },
-    question: '¿Este número es primo o compuesto?',
+  {
+    id: 'fraccion_de_cantidad_g5',
+    title: 'Fracción de una cantidad',
+    description: 'Calcula fracciones de cantidades.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.FRACCION_DE_CANTIDAD_G5,
   },
-  { 
-    id: 'g5-s1-e7', title: 'Las Pistas de la Divisibilidad', 
-    description: 'Usa reglas de divisibilidad (2, 3, 5, 9, 10).', 
-    iconName: 'BookOpenIcon', isLocked: false, 
-    componentType: ExerciseComponentType.REGLAS_DIVISIBILIDAD_G5, 
-    data: { totalStars: 10, numberRange: [10, 1000] },
-    question: '¿Es divisible por...?',
+  {
+    id: 'primos_compuestos_g5',
+    title: 'Números primos y compuestos',
+    description: 'Identifica números primos y compuestos.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.PRIMOS_COMPUESTOS_G5,
   },
-  { 
-    id: 'g5-s1-e8', title: 'Buscando Factores y Múltiplos (MCD y mcm)', 
-    description: 'Encuentra M.C.D. y m.c.m.', 
-    iconName: 'OperationsIcon', isLocked: false, 
-    componentType: ExerciseComponentType.MCD_MCM_G5, 
-    data: { 
-        totalStars: 8, 
-        minNum: 4, 
-        maxNum: 60,
-        challenges: [
-            { numbers: [12, 18], type: 'mcd', correctAnswer: 6 },
-            { numbers: [8, 12], type: 'mcm', correctAnswer: 24 },
-            { numbers: [20, 30], type: 'mcd', correctAnswer: 10 },
-            { numbers: [9, 15], type: 'mcm', correctAnswer: 45 },
-            { numbers: [24, 36], type: 'mcd', correctAnswer: 12 },
-            { numbers: [7, 5], type: 'mcm', correctAnswer: 35 },
-            { numbers: [40, 50], type: 'mcd', correctAnswer: 10 },
-            { numbers: [10, 14], type: 'mcm', correctAnswer: 70 },
-        ] as McdMcmChallenge[]
-    },
-    question: 'Calcula el M.C.D. o m.c.m.:',
-  },
-  { 
-    id: 'g5-s1-e9', title: 'Viaje a los Números Enteros', 
-    description: 'Compara números positivos y negativos en la recta numérica.', 
-    iconName: 'MeasureIcon', isLocked: false, 
-    componentType: ExerciseComponentType.NUMEROS_ENTEROS_INTRO_G5, 
-    data: { 
+  {
+    id: 'reglas_divisibilidad_g5',
+    title: 'Reglas de divisibilidad',
+    description: 'Aprende reglas de divisibilidad.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.REGLAS_DIVISIBILIDAD_G5,
+    data: {
       totalStars: 10,
-      numberRange: [-20, 20] 
+      numberRange: [10, 1000],
+      challenges: [] // You can add custom challenges here if desired
     },
-    question: 'Compara los números enteros:',
+  },
+  {
+    id: 'mcd_mcm_g5',
+    title: 'MCD y MCM',
+    description: 'Máximo común divisor y mínimo común múltiplo.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.MCD_MCM_G5,
+  },
+  {
+    id: 'numeros_enteros_intro_g5',
+    title: 'Introducción a los números enteros',
+    description: 'Conoce los números enteros.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.NUMEROS_ENTEROS_INTRO_G5,
+  },
+  {
+    id: 'simplificar_fracciones_g5',
+    title: 'Simplificar fracciones',
+    description: 'Simplifica fracciones a su mínima expresión.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.SIMPLIFICAR_FRACCIONES_G5,
+    data: {
+      // Precompute all possible (numerator, denominator) pairs that are not coprime
+      challenges: (() => {
+        const denominators = [4, 5, 6, 8, 9, 10, 12, 15, 16];
+        const pool: { numerator: number; denominator: number }[] = [];
+        const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
+        denominators.forEach(denominator => {
+          for (let numerator = 2; numerator < denominator; numerator++) {
+            if (gcd(numerator, denominator) > 1) {
+              pool.push({ numerator, denominator });
+            }
+          }
+        });
+        // Efficiently pick 12 unique random challenges
+        const selected: { numerator: number; denominator: number }[] = [];
+        const usedIndices = new Set<number>();
+        while (selected.length < 12 && usedIndices.size < pool.length) {
+          const idx = Math.floor(Math.random() * pool.length);
+          if (!usedIndices.has(idx)) {
+            usedIndices.add(idx);
+            selected.push(pool[idx]);
+          }
+        }
+        return selected.map(({ numerator, denominator }) => {
+          const factor = gcd(numerator, denominator);
+          const correctNumerator = numerator / factor;
+          const correctDenominator = denominator / factor;
+          const options = [
+            { fraction: { numerator: correctNumerator, denominator: correctDenominator }, isCorrect: true },
+            { fraction: { numerator, denominator }, isCorrect: false },
+            { fraction: { numerator: correctNumerator * 2, denominator: correctDenominator * 2 }, isCorrect: false }
+          ].sort(() => Math.random() - 0.5);
+          return {
+            fractionToSimplify: { numerator, denominator },
+            correctSimplifiedFraction: { numerator: correctNumerator, denominator: correctDenominator },
+            options,
+            visualType: 'bar'
+          };
+        });
+      })()
+    },
+  },
+  {
+    id: 'numeros_mixtos_avanzado_g5',
+    title: 'Números mixtos avanzado',
+    description: 'Trabaja con números mixtos.',
+    iconName: 'NumbersIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.NUMEROS_MIXTOS_AVANZADO_G5,
+    data: {
+      challenges: generateMixedNumberChallenges(20)
+    },
   },
 ];
+
+// --- Challenge generator for Números Mixtos Avanzado G5 ---
+function getRandomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b);
+}
+
+function generateMixedToImproper(): { question: string, correct: string, distractors: string[] } {
+  const whole = getRandomInt(1, 9);
+  let denominator = getRandomInt(2, 9);
+  let numerator = getRandomInt(1, denominator - 1);
+  // Avoid trivial cases
+  if (gcd(numerator, denominator) > 1) {
+    numerator = 1;
+  }
+  const improperNum = whole * denominator + numerator;
+  const correct = `${improperNum}/${denominator}`;
+  // Distractors
+  const d1 = `${whole * denominator + getRandomInt(1, denominator - 1)}/${denominator}`;
+  const d2 = `${numerator}/${denominator}`;
+  return {
+    question: `${whole} ${numerator}/${denominator}`,
+    correct,
+    distractors: [d1 !== correct ? d1 : `${improperNum + 1}/${denominator}`, d2 !== correct ? d2 : `${numerator + 1}/${denominator}`]
+  };
+}
+
+function generateImproperToMixed(): { question: string, correct: string, distractors: string[] } {
+  const denominator = getRandomInt(2, 9);
+  const whole = getRandomInt(1, 9);
+  const numerator = getRandomInt(1, denominator - 1);
+  const improperNum = whole * denominator + numerator;
+  const correct = `${whole} ${numerator}/${denominator}`;
+  // Distractors
+  const d1 = `${whole + 1} ${numerator}/${denominator}`;
+  const d2 = `${whole} ${getRandomInt(1, denominator - 1)}/${denominator}`;
+  return {
+    question: `${improperNum}/${denominator}`,
+    correct,
+    distractors: [d1 !== correct ? d1 : `${whole + 2} ${numerator}/${denominator}`, d2 !== correct ? d2 : `${whole} ${numerator + 1}/${denominator}`]
+  };
+}
+
+function shuffleArray<T>(array: T[]): T[] {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
+function generateMixedNumberChallenges(count: number) {
+  const challenges = [];
+  for (let i = 0; i < count; i++) {
+    if (i % 2 === 0) {
+      const { question, correct, distractors } = generateMixedToImproper();
+      challenges.push({
+        question,
+        type: 'mixed_to_improper',
+        options: shuffleArray([correct, ...distractors]),
+        correctAnswer: correct
+      });
+    } else {
+      const { question, correct, distractors } = generateImproperToMixed();
+      challenges.push({
+        question,
+        type: 'improper_to_mixed',
+        options: shuffleArray([correct, ...distractors]),
+        correctAnswer: correct
+      });
+    }
+  }
+  return challenges;
+}

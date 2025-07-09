@@ -13,7 +13,7 @@ import { Grade1ExercisePage } from './pages/grade1/Grade1ExercisePage';
 import { Grade2ExercisePage } from './pages/grade2/Grade2ExercisePage'; 
 import { Grade3ExercisePage } from './pages/grade3/Grade3ExercisePage';
 import { Grade4ExercisePage } from './pages/grade4/Grade4ExercisePage';
-import { Grade5ExercisePage } from './pages/grade5/Grade5ExercisePage'; // New import for 5th Grade
+import { Grade5ExercisePage } from './pages/grade5/Grade5ExercisePage';
 // The original ExercisePage will serve as a fallback or for other grades
 import { ExercisePage as FallbackExercisePage } from './pages/ExercisePage';
 
@@ -134,7 +134,7 @@ const App: React.FC = () => {
           return <Grade3ExercisePage {...pageProps} />;
         } else if (routeParams.gradeId === 4) {
           return <Grade4ExercisePage {...pageProps} />;
-        } else if (routeParams.gradeId === 5) { // New case for 5th Grade
+        } else if (routeParams.gradeId === 5) {
           return <Grade5ExercisePage {...pageProps} />;
         }
          else {

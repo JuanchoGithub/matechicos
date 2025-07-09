@@ -90,7 +90,42 @@
     .triangle-right.separated {
       transform: translateX(10px);
     }
+    
+    /* Polygon Sorting Exercise Styles */
+    .drop-zone {
+      transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .drop-zone-over {
+      background-color: #a7f3d0; /* A light green to indicate a valid drop target */
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); /* A glow effect */
+    }
+    .draggable-polygon {
+        cursor: grab;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .draggable-polygon:active {
+        cursor: grabbing;
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
 
+    /* 3D Shape Counter Styles */
+    .shape-element {
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .shape-element:hover {
+        opacity: 0.7;
+    }
+    /* SVG Fallback styles remain, but new 3D components won't use them */
+    .face-default { fill: rgba(59, 130, 246, 0.2); stroke: rgb(30, 64, 175); stroke-width: 1; }
+    .face-highlighted { fill: rgba(239, 68, 68, 0.7) !important; stroke: rgb(185, 28, 28); stroke-width: 2; }
+    
+    .edge-default { stroke: rgb(55, 65, 81); stroke-width: 2; }
+    .edge-highlighted { stroke: rgb(234, 179, 8, 1); stroke-width: 4; }
+
+    .vertex-default { fill: rgb(55, 65, 81); r: 4px; }
+    .vertex-highlighted { fill: rgb(34, 197, 94); r: 6px; stroke: white; stroke-width: 1; }
 
   </style>
 <script type="importmap">
@@ -98,7 +133,10 @@
   "imports": {
     "react": "https://esm.sh/react@^19.1.0",
     "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "react/": "https://esm.sh/react@^19.1.0/"
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@^10.5.0",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@^9.2.0",
+    "three": "https://esm.sh/three@^0.178.0"
   }
 }
 </script>

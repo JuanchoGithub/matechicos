@@ -200,7 +200,15 @@ export enum ExerciseComponentType {
   AREA_ADVENTURE_G5 = 'area_adventure_g5',
   AREA_PUZZLE_BUILDER_G5 = 'area_puzzle_builder_g5',
   VOLUMEN_VOYAGE_G5 = 'volumen_voyage_g5',
+  MEASUREMENT_DATA_EXPLORER_G5 = 'measurement_data_explorer_g5',
   // --- END 5th Grade Medidas Component Types ---
+
+  // --- START 5th Grade Geometria Component Types ---
+  POLYGON_SORTING_CHALLENGE_G5 = 'polygon_sorting_challenge_g5',
+  TRIANGLE_QUAD_EXPLORER_G5 = 'triangle_quad_explorer_g5',
+  SHAPE_3D_COUNTER_G5 = 'shape_3d_counter_g5',
+  NETS_OF_3D_SHAPES_G5 = 'nets_of_3d_shapes_g5',
+  // --- END 5th Grade Geometria Component Types ---
 
   // --- START Problemas New Component Types (Multiple Grades) ---
   PROBLEMAS_MULTIPLES_PASOS_G5 = 'problemas_multiples_pasos_g5',
@@ -276,12 +284,13 @@ export interface TriangleAngleDefinition {
 }
 
 
-export type QuadrilateralTypeId = 'cuadrado' | 'rectangulo' | 'rombo' | 'romboide' | 'trapecio' | 'trapezoide';
+export type QuadrilateralTypeId = 'cuadrado' | 'rectangulo' | 'rombo' | 'romboide' | 'trapecio' | 'trapezoide' | 'paralelogramo';
 export const QUADRILATERAL_TYPE_LABELS: Record<QuadrilateralTypeId, string> = {
   cuadrado: 'Cuadrado',
   rectangulo: 'Rectángulo',
   rombo: 'Rombo',
   romboide: 'Romboide',
+  paralelogramo: 'Paralelogramo',
   trapecio: 'Trapecio', 
   trapezoide: 'Trapezoide',
 };
@@ -695,7 +704,7 @@ export type ConversionUnitType = 'longitud' | 'masa' | 'capacidad' | 'tiempo';
 export type LengthUnitId = 'mm' | 'cm' | 'm' | 'km';
 export type MassUnitId = 'g' | 'kg' | 't';
 export type CapacityUnitId = 'ml' | 'l' | 'kl';
-export type TimeUnitId = 'segundos' | 'minutos' | 'horas' | 'dias';
+export type TimeUnitId = 'horas' | 'minutos' | 'segundos';
 export type AnyUnitId = LengthUnitId | MassUnitId | CapacityUnitId | TimeUnitId;
 
 export interface ConversionUnidadesChallenge {
@@ -1093,4 +1102,83 @@ export interface VolumeVoyageChallenge {
   icon: string;
   correctAnswer: number;
 }
+
+// New Interface for Measurement Data Explorer
+export interface MeasurementDataExplorerChallengeG5 {
+  id: string;
+  mode: 'create' | 'interpret';
+  title: string;
+  data: number[];
+  unit: string;
+  question: string;
+  correctAnswer: number;
+  dotIcon?: string;
+  icon?: string;
+  lineRange: [number, number]; // min and max for the number line
+  step: number; // step for the number line ticks
+}
 // --- END 5th Grade Medidas Specific Types ---
+
+
+// --- START 5th Grade Geometria Specific Types ---
+export interface PolygonSortingChallengeG5 {
+  id: string;
+  VisualComponent: React.FC<any>;
+  visualProps?: any;
+  isRegular: boolean;
+  isConvex: boolean;
+  name: string; // e.g., "Pentágono Regular"
+  hint: string;
+}
+
+export type TriangleAngleChallengeG5 = {
+  type: 'triangle_angle';
+  knownAngles: [number, number];
+};
+
+export type QuadPropertyChallengeG5 = {
+  type: 'quad_property';
+  description: string;
+  correctShapeId: QuadrilateralTypeId;
+  options: QuadrilateralTypeId[];
+};
+
+export type TriangleQuadExplorerChallenge = TriangleAngleChallengeG5 | QuadPropertyChallengeG5;
+
+export interface Shape3DCounterChallengeG5 {
+  shapeId: GeometricBodyTypeId;
+  shapeName: string;
+  VisualComponent: React.FC<any>; // Component that takes click handlers
+  correctCounts: {
+    faces: number;
+    edges: number;
+    vertices: number;
+  };
+}
+
+// For NETS_OF_3D_SHAPES_G5
+export type NetConstructionPieceType = 'square' | 'rectangle_a' | 'rectangle_b';
+
+export interface NetConstructionChallenge {
+  type: 'construct';
+  targetShape: 'cube' | 'rectangular_prism';
+  pieces: { type: NetConstructionPieceType, count: number }[];
+  gridSize: { rows: number; cols: number };
+  // We won't predefine layouts, we'll check validity algorithmically
+  validLayouts: number[][][]; 
+  feedback: {
+    invalidCount: string;
+    invalidShape: string;
+    correct: string;
+  };
+}
+
+export interface NetMatchingChallenge {
+  type: 'match';
+  targetShapeId: GeometricBodyTypeId;
+  TargetShapeComponent: React.FC<any>;
+  netOptions: { id: string, NetVisualComponent: React.FC<any>, isCorrect: boolean }[];
+}
+
+export type NetsOf3DShapesChallenge = NetConstructionChallenge | NetMatchingChallenge;
+// --- END 5th Grade Geometria Specific Types ---

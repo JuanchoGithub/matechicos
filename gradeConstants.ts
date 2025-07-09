@@ -1,14 +1,12 @@
-
-
-import { GradeData, SubjectData, GradeLevel, SubjectId, Exercise, ExerciseComponentType, OriginalIconName } from './types';
-import { createExercise } from '../utils/exerciseUtils'; 
+import { GradeData, SubjectData, GradeLevel, SubjectId, ExerciseComponentType, OriginalIconName } from "@/types";
+import { createExercise } from "@/utils/exerciseUtils"; 
 
 // Import new grade-specific aggregated data
-import { grade1ExerciseData } from './grade1Constants';
-import { grade2ExerciseData } from './grade2Constants';
-import { grade3ExerciseData } from './grade3Constants';
-import { grade4ExerciseData } from './grade4Constants'; 
-import { grade5ExerciseData } from './grade5Constants'; // New import for 5th Grade
+import { grade1ExerciseData } from "@/grade1Constants";
+import { grade2ExerciseData } from "@/grade2Constants";
+import { grade3ExerciseData } from "@/grade3Constants";
+import { grade4ExerciseData } from "@/grade4Constants"; 
+import { grade5ExerciseData } from "@/grade5Constants";
 
 export const GRADES_CONFIG: Omit<GradeData, 'subjects'>[] = [
   { id: 1, name: "1er Grado", longName: "PRIMERO", themeColor: "bg-red-500" },
@@ -150,7 +148,7 @@ export const getGradeData = (gradeId: GradeLevel): GradeData | undefined => {
   else if (gradeId === 2) specificGradeData = grade2ExerciseData;
   else if (gradeId === 3) specificGradeData = grade3ExerciseData;
   else if (gradeId === 4) specificGradeData = grade4ExerciseData;
-  else if (gradeId === 5) specificGradeData = grade5ExerciseData; // Added 5th Grade
+  else if (gradeId === 5) specificGradeData = grade5ExerciseData;
 
   if (specificGradeData) {
     subjects = subjects.map(subject => {

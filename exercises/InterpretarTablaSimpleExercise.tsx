@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ExerciseScaffoldApi } from '../../types'; // Corrected import
-import { Exercise as ExerciseType, TableScenarioTemplate, TableRowData, TableQuestion, TableQuestionTemplate } from '../../types';
-import { Icons } from '../../components/icons';
+import { ExerciseScaffoldApi } from '@/types';
+import { Exercise as ExerciseType, TableScenarioTemplate, TableRowData, TableQuestion, TableQuestionTemplate } from '@/types';
+import { Icons } from '@components';
 
 // Interface for the fully generated and active scenario, including questions
 interface ActiveTableScenarioData {

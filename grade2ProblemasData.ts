@@ -1,6 +1,4 @@
-
-
-import { Exercise, ExerciseComponentType, OriginalIconName } from './types';
+import { Exercise, ExerciseComponentType, OriginalIconName } from "@/types";
 import { ScenarioSetId } from './exercises/problemScenarios/index';
 
 const secondGradeProblemasBaseData = {

@@ -1,5 +1,4 @@
-
-import { Exercise, ExerciseComponentType, TableDobleEntradaScenarioTemplate, UbicarEnTablaScenarioTemplate, MissingInfoPuzzleScenarioTemplate, OrdenarDatosEnTablaScenarioTemplate, CompararTablasSimplesScenarioTemplate, SimpleTableDataForComparison, LinealChartScenarioTemplate, MultiLineChartScenarioTemplate, BarChartScenarioTemplate, TableScenarioTemplate } from './types'; // Added TableScenarioTemplate
+import { Exercise, ExerciseComponentType, OriginalIconName } from "@/types";
 
 // --- Scenarios for g3-s6-e5: InterpretarTablaSimpleExercise ---
 const g3s6e5_AnimalesFavoritos: TableScenarioTemplate = {

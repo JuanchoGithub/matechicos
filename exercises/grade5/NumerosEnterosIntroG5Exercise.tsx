@@ -87,10 +87,13 @@ export const NumerosEnterosIntroG5Exercise: React.FC<NumerosEnterosIntroG5Exerci
     setCharacterEmoji(FACE_EMOJIS_ENTEROS[Math.floor(Math.random() * FACE_EMOJIS_ENTEROS.length)]);
   }, [numberRange, showFeedback]);
 
+  // Only generate a challenge on mount (empty dependency array)
   useEffect(() => {
     generateNewChallenge();
-  }, [generateNewChallenge, exercise.id]);
+    // eslint-disable-next-line
+  }, []);
   
+  // Keep this effect for advancing to next challenge
   useEffect(() => {
     if (advanceToNextChallengeSignal > (prevAdvanceSignalRef.current ?? -1)) {
         generateNewChallenge();

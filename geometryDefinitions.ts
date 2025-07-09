@@ -1,7 +1,7 @@
 
-
 import React from 'react';
-import { LineType, RectasPairType, CirclePartDefinition, AngleTypeId, AngleDefinition, ANGLE_TYPE_LABELS, TriangleSideTypeId, TriangleSideDefinition, TRIANGLE_SIDE_TYPE_LABELS, TriangleAngleTypeId, TriangleAngleDefinition, TRIANGLE_ANGLE_TYPE_LABELS, QuadrilateralTypeId, QuadrilateralDefinition, QUADRILATERAL_TYPE_LABELS, PolygonBasicTypeId, PolygonBasicDefinition, POLYGON_BASIC_TYPE_LABELS, PerimeterShapeTypeId, PerimeterShapeDefinition, PERIMETER_SHAPE_TYPE_LABELS, SymmetryChallengeDefinition, GeometricBodyTypeId, GeometricBodyDefinition, GEOMETRIC_BODY_TYPE_LABELS, LINE_TYPE_LABELS, RECTAS_PAIR_TYPE_LABELS, BasicShapeTypeId, BasicShapeDefinition, BASIC_SHAPE_LABELS, TransformationType, GenericVisualChallenge } from './types'; // Added GenericVisualChallenge
+import { LineType, RectasPairType, CirclePartDefinition, AngleTypeId, AngleDefinition, ANGLE_TYPE_LABELS, TriangleSideTypeId, TriangleSideDefinition, TRIANGLE_SIDE_TYPE_LABELS, TriangleAngleTypeId, TriangleAngleDefinition, TRIANGLE_ANGLE_TYPE_LABELS, QuadrilateralTypeId, QuadrilateralDefinition, QUADRILATERAL_TYPE_LABELS, PolygonBasicTypeId, PolygonBasicDefinition, POLYGON_BASIC_TYPE_LABELS, PerimeterShapeTypeId, PerimeterShapeDefinition, PERIMETER_SHAPE_TYPE_LABELS, SymmetryChallengeDefinition, GeometricBodyTypeId, GeometricBodyDefinition, GEOMETRIC_BODY_TYPE_LABELS, LINE_TYPE_LABELS, RECTAS_PAIR_TYPE_LABELS, BasicShapeTypeId, BasicShapeDefinition, BASIC_SHAPE_LABELS, TransformationType, GenericVisualChallenge, PolygonSortingChallengeG5, Shape3DCounterChallengeG5 } from './types';
+import { InteractiveCube, InteractivePrism, InteractivePyramid } from './components/Interactive3DShape';
 
 // --- START Geometria (s5) - Line Visual Components (Tipos de Líneas) ---
 export const RectaHorizontalSVG: React.FC<{className?: string}> = ({ className: additionalClasses = "" }) =>
@@ -375,6 +375,7 @@ export const quadrilateralDefinitions: QuadrilateralDefinition[] = [
   { id: 'rectangulo', name: QUADRILATERAL_TYPE_LABELS.rectangulo, characteristic: 'Lados iguales dos a dos y 4 ángulos rectos.', VisualComponent: RectanguloSVG },
   { id: 'rombo', name: QUADRILATERAL_TYPE_LABELS.rombo, characteristic: '4 lados iguales. Ángulos iguales dos a dos (no rectos).', VisualComponent: RomboSVG },
   { id: 'romboide', name: QUADRILATERAL_TYPE_LABELS.romboide, characteristic: 'Lados y ángulos opuestos iguales. No tiene ángulos rectos.', VisualComponent: RomboideSVG },
+  { id: 'paralelogramo', name: QUADRILATERAL_TYPE_LABELS.paralelogramo, characteristic: 'Tiene 2 pares de lados opuestos paralelos e iguales.', VisualComponent: RomboideSVG },
   { id: 'trapecio', name: QUADRILATERAL_TYPE_LABELS.trapecio, characteristic: 'Solo un par de lados paralelos.', VisualComponent: TrapecioIsoscelesSVG },
   { id: 'trapezoide', name: QUADRILATERAL_TYPE_LABELS.trapezoide, characteristic: 'Ningún lado paralelo a otro.', VisualComponent: TrapezoideSVG },
 ];
@@ -442,6 +443,25 @@ export const PoligonoIrregularSVG: React.FC<{ className?: string; strokeColor?: 
     React.createElement("polygon", { points: "10,20 80,10 90,70 40,90 20,50", stroke: strokeColor, fill: fillColor, strokeWidth: "3" })
   );
 
+// Concave Arrowhead Quadrilateral
+export const ConcaveQuadrilateralSVG: React.FC<{ className?: string; strokeColor?: string; fillColor?: string }> = ({ className: propClassName, strokeColor = "black", fillColor = "rgba(255, 99, 71, 0.3)" }) =>
+React.createElement("svg", { viewBox: "0 0 100 100", className: propClassName || "w-24 h-24", xmlns: "http://www.w3.org/2000/svg" },
+  React.createElement("polygon", { points: "10,10 90,50 10,90 30,50", stroke: strokeColor, fill: fillColor, strokeWidth: "3" })
+);
+
+// Irregular Pentagon
+export const IrregularPentagonSVG: React.FC<{ className?: string; strokeColor?: string; fillColor?: string }> = ({ className: propClassName, strokeColor = "black", fillColor = "rgba(255, 165, 0, 0.3)" }) =>
+React.createElement("svg", { viewBox: "0 0 100 100", className: propClassName || "w-24 h-24", xmlns: "http://www.w3.org/2000/svg" },
+  React.createElement("polygon", { points: "50,10 95,35 80,90 20,90 5,35", stroke: strokeColor, fill: fillColor, strokeWidth: "3" })
+);
+
+// Concave Hexagon
+export const ConcaveHexagonSVG: React.FC<{ className?: string; strokeColor?: string; fillColor?: string }> = ({ className: propClassName, strokeColor = "black", fillColor = "rgba(128, 0, 128, 0.3)" }) =>
+React.createElement("svg", { viewBox: "0 0 100 100", className: propClassName || "w-24 h-24", xmlns: "http://www.w3.org/2000/svg" },
+  React.createElement("polygon", { points: "10,40 50,10 90,40 90,80 50,60 10,80", stroke: strokeColor, fill: fillColor, strokeWidth: "3" })
+);
+
+
 export const polygonBasicDefinitions: PolygonBasicDefinition[] = [
   { id: 'triangulo', name: POLYGON_BASIC_TYPE_LABELS.triangulo, sidesDescription: '3 lados.', VisualComponent: TrianguloGenericoSVG },
   { id: 'cuadrilatero', name: POLYGON_BASIC_TYPE_LABELS.cuadrilatero, sidesDescription: '4 lados.', VisualComponent: CuadrilateroGenericoSVG },
@@ -481,6 +501,17 @@ export const basicShapeDefinitions: BasicShapeDefinition[] = [
   { id: 'rectangulo', name: BASIC_SHAPE_LABELS.rectangulo, description: 'Tiene 4 lados, los opuestos son iguales, y 4 esquinas rectas.', VisualComponent: RectanguloSVG },
 ];
 // --- END Basic Polygon Visual Components & Definitions ---
+
+// --- START Polygon Sorting Challenge Definitions (G5) ---
+export const polygonSortingChallenges: PolygonSortingChallengeG5[] = [
+    { id: 'regular_pentagon', VisualComponent: PentagonoRegularSVG, isRegular: true, isConvex: true, name: "Pentágono Regular", hint: "Un polígono regular tiene todos sus lados y ángulos iguales." },
+    { id: 'irregular_pentagon', VisualComponent: IrregularPentagonSVG, isRegular: false, isConvex: true, name: "Pentágono Irregular", hint: "Un polígono irregular tiene lados o ángulos de diferentes medidas." },
+    { id: 'concave_quad', VisualComponent: ConcaveQuadrilateralSVG, isRegular: false, isConvex: false, name: "Cuadrilátero Cóncavo", hint: "Un polígono cóncavo tiene al menos un ángulo interno mayor a 180°, como si tuviera una 'abolladura'." },
+    { id: 'regular_hexagon', VisualComponent: HexagonoRegularSVG, isRegular: true, isConvex: true, name: "Hexágono Regular", hint: "Este polígono de 6 lados tiene todos sus lados y ángulos iguales." },
+    { id: 'concave_hexagon', VisualComponent: ConcaveHexagonSVG, isRegular: false, isConvex: false, name: "Hexágono Cóncavo", hint: "Cuenta los lados. ¿Alguno de sus ángulos 'apunta hacia adentro'?" },
+    { id: 'irregular_convex_quad', VisualComponent: TrapezoideSVG, isRegular: false, isConvex: true, name: "Trapezoide (Irregular y Convexo)", hint: "No tiene lados paralelos ni necesariamente iguales, y todos sus ángulos apuntan 'hacia afuera'." }
+];
+// --- END Polygon Sorting Challenge Definitions ---
 
 // --- START Perimeter Calculation Shape Visual Components & Definitions ---
 
@@ -729,7 +760,7 @@ export const symmetryChallengeDefinitions: SymmetryChallengeDefinition[] = [
 ];
 // --- END Symmetry Challenge Visual Components & Definitions ---
 
-// --- START Geometric Body Visual Components & Definitions (3D Shapes) ---
+// --- START OLD Geometric Body Visual Components & Definitions (3D Shapes) ---
 export const PrismaRectangularSVG: React.FC<{ className?: string; strokeColor?: string; fillColor?: string, fillOpacity?: number }> =
   ({ className: propClassName, strokeColor = "black", fillColor = "rgba(0, 128, 255, 0.3)", fillOpacity = 0.3 }) =>
   React.createElement("svg", { viewBox: "0 0 100 100", className: propClassName || "w-28 h-28", xmlns: "http://www.w3.org/2000/svg" },
@@ -792,6 +823,9 @@ export const CilindroSVG: React.FC<{ className?: string; strokeColor?: string; f
     React.createElement("path", { d: "M20,80 A 30,10 0 0,0 80,80", stroke: strokeColor, fill:"none", strokeWidth: "1.5", strokeDasharray:"3,3" })
   );
 
+// --- END OLD Geometric Body Visual Components & Definitions ---
+
+
 export const geometricBodyDefinitions: GeometricBodyDefinition[] = [
   { id: 'cubo', name: GEOMETRIC_BODY_TYPE_LABELS.cubo, characteristic: 'Tiene 6 caras cuadradas iguales.', VisualComponent: CuboSVG },
   { id: 'prismaRectangular', name: GEOMETRIC_BODY_TYPE_LABELS.prismaRectangular, characteristic: 'Tiene 6 caras rectangulares.', VisualComponent: PrismaRectangularSVG },
@@ -801,6 +835,32 @@ export const geometricBodyDefinitions: GeometricBodyDefinition[] = [
   { id: 'cilindro', name: GEOMETRIC_BODY_TYPE_LABELS.cilindro, characteristic: 'Dos bases circulares iguales y una superficie curva lateral.', VisualComponent: CilindroSVG },
 ];
 // --- END Geometric Body Visual Components & Definitions ---
+
+// --- START 3D Shape Counting Challenge Definitions (G5) ---
+export const shape3DCountingChallenges: Shape3DCounterChallengeG5[] = [
+  {
+    shapeId: 'cubo',
+    shapeName: GEOMETRIC_BODY_TYPE_LABELS.cubo,
+    VisualComponent: InteractiveCube,
+    correctCounts: { faces: 6, edges: 12, vertices: 8 },
+  },
+  {
+    shapeId: 'prismaRectangular',
+    shapeName: GEOMETRIC_BODY_TYPE_LABELS.prismaRectangular,
+    VisualComponent: InteractivePrism,
+    correctCounts: { faces: 6, edges: 12, vertices: 8 },
+  },
+  {
+    shapeId: 'piramideCuadrangular',
+    shapeName: GEOMETRIC_BODY_TYPE_LABELS.piramideCuadrangular,
+    VisualComponent: InteractivePyramid,
+    correctCounts: { faces: 5, edges: 8, vertices: 5 },
+  },
+];
+// --- END 3D Shape Counting Challenge Definitions ---
+
+export { InteractiveCube, InteractivePrism, InteractivePyramid };
+
 
 // --- START Redes (Nets) Visual Components - G4 ---
 const NetSquare: React.FC<{x: number, y: number, size: number, stroke?: string, fill?: string, strokeWidth?: number}> = 
@@ -845,6 +905,25 @@ export const NetPiramideCuadrSVG: React.FC<{ className?: string }> = ({ classNam
     React.createElement("polygon", { ...commonProps, points: `${centerX - b/2},${centerY - b/2} ${centerX - b/2},${centerY + b/2} ${centerX - b/2 - th},${centerY}` }),
     React.createElement("polygon", { ...commonProps, points: `${centerX + b/2},${centerY - b/2} ${centerX + b/2},${centerY + b/2} ${centerX + b/2 + th},${centerY}` })
   );
+};
+
+export const NetCilindroSVG: React.FC<{ className?: string }> = ({ className = "" }) => {
+    const r = 15; const h = 40; const w = 70;
+    const commonProps = { stroke: "rgb(100,50,150)", fill: "rgba(200,150,250,0.2)", strokeWidth: 1 };
+    return React.createElement('svg', { viewBox: "0 0 100 90", className: `w-32 h-32 ${className}` },
+        React.createElement('circle', { ...commonProps, cx: "50", cy: "15", r: "15" }),
+        React.createElement('rect', { ...commonProps, x: "15", y: "30", width: "70", height: "40" }),
+        React.createElement('circle', { ...commonProps, cx: "50", cy: "80", r: "15" })
+    );
+};
+
+export const NetConoSVG: React.FC<{ className?: string }> = ({ className = "" }) => {
+    const r = 15;
+    const commonProps = { stroke: "rgb(150,100,50)", fill: "rgba(250,200,150,0.2)", strokeWidth: 1 };
+    return React.createElement('svg', { viewBox: "0 0 100 100", className: `w-32 h-32 ${className}` },
+        React.createElement('circle', { ...commonProps, cx: "50", cy: "80", r: "15" }),
+        React.createElement('path', { ...commonProps, d: "M 50,50 L 10,10 A 55,55 0 0 1 90,10 Z" })
+    );
 };
 // --- END Redes (Nets) Visual Components ---
 
@@ -1037,7 +1116,7 @@ export const GridBackgroundSVG: React.FC<{ className?: string }> = ({ className 
       width:"100%", 
       height:"100%" 
     }, 
-    lines
+    ...lines
   );
 };
 // --- END Transformaciones Geométricas Visual Components ---

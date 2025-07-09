@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Exercise as ExerciseType, ExerciseScaffoldApi, DecimalAvanzadoChallenge } from '../../types';
 import { Icons } from '../../components/icons'; // Icons might be used for feedback or styling
+import { TimeOptionsKeypad } from '../../components/TimeOptionsKeypad';
 
 // Helper function to convert number part to Spanish words (0-999)
 const numberToWordsHelper = (num: number): string => {
@@ -106,6 +106,7 @@ export const DecimalesAvanzadoG5Exercise: React.FC<DecimalesAvanzadoG5ExercisePr
   const [currentChallenge, setCurrentChallenge] = useState<DecimalAvanzadoChallenge | null>(null);
   const [userInputWords, setUserInputWords] = useState<string>("");
   const [isAttemptPending, setIsAttemptPending] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   const { showFeedback, onAttempt, advanceToNextChallengeSignal } = scaffoldApi;
   const prevAdvanceSignalRef = useRef(advanceToNextChallengeSignal);
@@ -149,15 +150,15 @@ export const DecimalesAvanzadoG5Exercise: React.FC<DecimalesAvanzadoG5ExercisePr
     setUserInputWords(event.target.value);
   };
 
-  const verifyAnswer = useCallback(() => {
+  const verifyAnswer = useCallback((selectedOption?: string) => {
     if (!currentChallenge || isAttemptPending) return;
     setIsAttemptPending(true);
 
-    // Normalize input: lowercase, trim, remove extra spaces
-    const normalizedUserInput = userInputWords.toLowerCase().trim().split(/\s+/).join(' ');
+    // Use selectedOption if provided (MCQ), else use userInputWords (for fallback/text input)
+    const userAnswer = (typeof selectedOption === 'string' ? selectedOption : userInputWords).toLowerCase().trim().split(/\s+/).join(' ');
     const normalizedCorrectAnswer = currentChallenge.correctAnswer.toLowerCase().trim().split(/\s+/).join(' ');
 
-    const isCorrect = normalizedUserInput === normalizedCorrectAnswer;
+    const isCorrect = userAnswer === normalizedCorrectAnswer;
     onAttempt(isCorrect);
 
     if (isCorrect) {
@@ -167,6 +168,36 @@ export const DecimalesAvanzadoG5Exercise: React.FC<DecimalesAvanzadoG5ExercisePr
       setIsAttemptPending(false); // Allow retry
     }
   }, [currentChallenge, userInputWords, onAttempt, showFeedback, isAttemptPending]);
+
+  // For MCQ sidebar keypad
+  useEffect(() => {
+    if (setCustomKeypadContent && currentChallenge && currentChallenge.representationType === 'decimal_to_word') {
+      setCustomKeypadContent(
+        <TimeOptionsKeypad
+          options={currentChallenge.options || []}
+          selectedOption={userInputWords}
+          onOptionSelect={option => {
+            if (!isAttemptPending) {
+              setUserInputWords(option);
+              setIsVerified(false);
+            }
+          }}
+          onVerify={() => {
+            if (!isAttemptPending && userInputWords) {
+              verifyAnswer(userInputWords);
+              setIsVerified(true);
+            }
+          }}
+          isVerified={isVerified}
+          correctAnswerText={currentChallenge.correctAnswer}
+        />
+      );
+    } else if (setCustomKeypadContent) {
+      setCustomKeypadContent(null);
+    }
+    // Clean up on unmount
+    return () => { if (setCustomKeypadContent) setCustomKeypadContent(null); };
+  }, [setCustomKeypadContent, currentChallenge, userInputWords, isAttemptPending, isVerified, verifyAnswer]);
 
   if (!currentChallenge) {
     return <div className="p-4 text-slate-700">Cargando desafío de decimales...</div>;
@@ -184,11 +215,9 @@ export const DecimalesAvanzadoG5Exercise: React.FC<DecimalesAvanzadoG5ExercisePr
   return (
     <div className="flex flex-col items-center p-4 text-slate-800 w-full max-w-lg mx-auto">
       <h3 className="text-xl font-bold text-sky-700 mb-3 text-center">{exercise.title}</h3>
-      
       <p className="text-md text-slate-700 mb-2 text-center">
         {questionText}
       </p>
-      
       {currentChallenge.representationType === 'decimal_to_word' && (
         <div className="my-3 p-3 bg-sky-100 border border-sky-300 rounded-lg shadow-sm w-full text-center">
           <span className="text-4xl font-mono text-sky-700 tracking-wider">
@@ -196,28 +225,7 @@ export const DecimalesAvanzadoG5Exercise: React.FC<DecimalesAvanzadoG5ExercisePr
           </span>
         </div>
       )}
-
-      {currentChallenge.representationType === 'decimal_to_word' && (
-        <div className="w-full mt-4">
-          <input
-            type="text"
-            value={userInputWords}
-            onChange={handleInputChange}
-            className="w-full p-3 bg-white border border-slate-300 rounded-lg shadow-sm text-slate-700 focus:ring-2 focus:ring-sky-400 focus:border-sky-400 placeholder-slate-300"
-            placeholder="Ej: tres décimos"
-            aria-label="Escribe el número decimal en palabras"
-            disabled={isAttemptPending}
-          />
-          <button
-            onClick={verifyAnswer}
-            disabled={isAttemptPending || !userInputWords.trim()}
-            className="mt-4 w-full px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Verificar Respuesta
-          </button>
-        </div>
-      )}
-
+      {/* Options are now in the sidebar keypad */}
       {/* Add UI for 'word_to_decimal' and 'identify_place_value_decimal' types here as needed */}
        {currentChallenge.representationType === 'word_to_decimal' && (
          <div className="p-6 border border-slate-300 rounded-lg bg-white shadow-md w-full max-w-md min-h-[100px] flex items-center justify-center mt-4">

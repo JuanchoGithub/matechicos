@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { NumericKeypad } from '../../components/NumericKeypad';
-import { Exercise as ExerciseType, PerimeterShapeDefinition, PERIMETER_SHAPE_TYPE_LABELS, PerimeterShapeTypeId, ExerciseScaffoldApi } from '../../types';
-import { Icons } from '../../components/icons';
+import { NumericKeypad } from '@components/NumericKeypad';
+import { Exercise as ExerciseType, PerimeterShapeDefinition, PERIMETER_SHAPE_TYPE_LABELS, PerimeterShapeTypeId, ExerciseScaffoldApi } from "@/types";
+import { Icons } from "@components";
 
 interface CalcularPerimetroPoligonoSimpleExerciseProps {
   exercise: ExerciseType;
