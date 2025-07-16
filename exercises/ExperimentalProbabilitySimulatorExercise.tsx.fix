@@ -1,0 +1,637 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Exercise } from '../types';
+import './ExperimentalProbabilitySimulatorExercise.css';
+import { NumericKeypad } from '../components';
+
+interface SimulationResult {
+  id: number;
+  outcome: string;
+  target: boolean;
+}
+
+interface ExperimentConfig {
+  type: 'spinner' | 'coin';
+  sections?: { color: string; label: string }[];
+  targetSection?: string;
+  coinSides?: { value: string; label: string }[];
+  targetValue?: string;
+  numTrials: number; // Default number of trials
+  theoreticalProbability: { numerator: number; denominator: number };
+}
+
+interface ExperimentScenario {
+  id: string;
+  title: string;
+  description: string;
+  config: ExperimentConfig;
+  hint: string;
+}
+
+const ExperimentalProbabilitySimulatorExercise: React.FC<{ exercise: Exercise, onAttempt: (success: boolean) => void, setCustomKeypadContent?: (content: React.ReactNode | null) => void }> = ({ 
+  exercise, 
+  onAttempt, 
+  setCustomKeypadContent 
+}) => {
+  // Ensure the API is safe to call
+  const safeApi = {
+    onAttempt: useCallback((success: boolean) => {
+      if (onAttempt) {
+        onAttempt(success);
+      }
+    }, [onAttempt])
+  };
+
+  // Access data based on how it's provided from the API
+  const exerciseData = exercise as any;
+  const scenarios: ExperimentScenario[] = exerciseData.data?.scenarios || [];
+  
+  // State variables
+  const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [currentScenario, setCurrentScenario] = useState<ExperimentScenario | null>(null);
+  const [experimentConfig, setExperimentConfig] = useState<ExperimentConfig | null>(null);
+  const [simResults, setSimResults] = useState<SimulationResult[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [numTrialsToRun, setNumTrialsToRun] = useState(10); // Default value
+  const [totalTrialsCompleted, setTotalTrialsCompleted] = useState(0);
+  const [experimentalNumerator, setExperimentalNumerator] = useState('');
+  const [experimentalDenominator, setExperimentalDenominator] = useState('');
+  const [activeField, setActiveField] = useState<'numerator' | 'denominator'>('numerator');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
+  const spinnerRef = useRef<HTMLDivElement>(null);
+  const coinRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const numeratorInputRef = useRef<HTMLInputElement>(null);
+  const denominatorInputRef = useRef<HTMLInputElement>(null);
+  
+  // Timing refs
+  const animationInterval = useRef<NodeJS.Timeout | null>(null);
+  // Use a ref to track trials count for the interval check
+  const trialsCompletedRef = useRef<number>(0);
+
+  // Initialize component
+  useEffect(() => {
+    if (scenarios && scenarios.length > 0) {
+      const firstScenario = scenarios[scenarioIndex];
+      setCurrentScenario(firstScenario);
+      setExperimentConfig(firstScenario.config);
+      setNumTrialsToRun(firstScenario.config.numTrials);
+      resetExperiment();
+    } else {
+      setError("No experiment scenarios found");
+    }
+    
+    return () => {
+      // Clean up interval on unmount
+      if (animationInterval.current) {
+        clearInterval(animationInterval.current);
+      }
+    };
+  }, [scenarioIndex, scenarios]);
+  
+  // Calculate experimental probability
+  const calculateExperimentalProbability = (): { numerator: number, denominator: number } => {
+    if (simResults.length === 0) {
+      return { numerator: 0, denominator: 1 };
+    }
+    
+    const targetCount = simResults.filter(result => result.target).length;
+    return {
+      numerator: targetCount,
+      denominator: simResults.length
+    };
+  };
+  
+  // Check user's answer
+  const checkAnswer = () => {
+    if (!experimentalNumerator || !experimentalDenominator || !experimentConfig) {
+      setFeedbackMessage('Por favor, ingresa una fracción completa para la probabilidad experimental.');
+      setShowFeedback(true);
+      return;
+    }
+    
+    const userNumerator = parseInt(experimentalNumerator, 10);
+    const userDenominator = parseInt(experimentalDenominator, 10);
+    
+    // Calculate actual experimental probability
+    const { numerator: actualNumerator, denominator: actualDenominator } = calculateExperimentalProbability();
+    
+    // Allow for some flexibility in the answer since it's experimental
+    const userProbability = userNumerator / userDenominator;
+    const actualProbability = actualNumerator / actualDenominator;
+    const theoreticalProbability = experimentConfig.theoreticalProbability.numerator / experimentConfig.theoreticalProbability.denominator;
+    
+    // Check if the user's answer is reasonable (within 10% of actual experimental result)
+    const isReasonable = Math.abs(userProbability - actualProbability) < 0.1;
+    
+    if (isReasonable) {
+      setFeedbackMessage(`¡Excelente! Tu probabilidad experimental ${userNumerator}/${userDenominator} es muy cercana a la probabilidad teórica de ${experimentConfig.theoreticalProbability.numerator}/${experimentConfig.theoreticalProbability.denominator}.`);
+      setShowFeedback(true);
+      setIsComplete(true);
+      safeApi.onAttempt(true); // Report success
+    } else {
+      // Provide helpful feedback
+      if (simResults.length < 10) {
+        setFeedbackMessage(`Intenta realizar más experimentos para obtener un resultado más preciso. La probabilidad experimental actual es ${actualNumerator}/${actualDenominator}.`);
+      } else if (Math.abs(userProbability - theoreticalProbability) < Math.abs(actualProbability - theoreticalProbability)) {
+        // User's answer is actually closer to theoretical than the experimental result
+        setFeedbackMessage(`¡Muy bien! Tu respuesta ${userNumerator}/${userDenominator} está más cerca de la probabilidad teórica (${experimentConfig.theoreticalProbability.numerator}/${experimentConfig.theoreticalProbability.denominator}) que los resultados experimentales.`);
+        setIsComplete(true);
+        safeApi.onAttempt(true);
+      } else {
+        setFeedbackMessage(`Revisa tus cálculos. Basado en tus ${simResults.length} experimentos, la probabilidad experimental es ${actualNumerator}/${actualDenominator}.`);
+      }
+      setShowFeedback(true);
+    }
+  };
+  
+  // Handle keypad key press
+  const handleKeypadPress = useCallback((key: string) => {
+    if (/^\d$/.test(key)) {
+      if (activeField === 'numerator') {
+        setExperimentalNumerator(prev => {
+          if (prev.length < 2) {
+            return `${prev}${key}`;
+          }
+          return prev;
+        });
+      } else if (activeField === 'denominator') {
+        setExperimentalDenominator(prev => {
+          if (prev.length < 2) {
+            return `${prev}${key}`;
+          }
+          return prev;
+        });
+      }
+    } else if (key === 'backspace') {
+      if (activeField === 'numerator') {
+        setExperimentalNumerator(prev => prev.slice(0, -1));
+      } else if (activeField === 'denominator') {
+        setExperimentalDenominator(prev => prev.slice(0, -1));
+      }
+    } else if (key === 'check') {
+      checkAnswer();
+    }
+  }, [activeField]);
+  
+  // Set up the numeric keypad for fraction input - separated into its own useEffect
+  useEffect(() => {
+    if (setCustomKeypadContent) {
+      const keypadContent = (
+        <div style={{ width: '100%' }}>
+          <NumericKeypad 
+            onKeyPress={handleKeypadPress}
+            allowDecimal={false}
+          />
+        </div>
+      );
+      
+      // Set the keypad content
+      setCustomKeypadContent(keypadContent);
+      
+      return () => {
+        setCustomKeypadContent(null);
+      };
+    }
+  }, [setCustomKeypadContent, handleKeypadPress]);
+  
+  const resetExperiment = () => {
+    setSimResults([]);
+    setTotalTrialsCompleted(0);
+    trialsCompletedRef.current = 0; // Reset the ref counter
+    setIsRunning(false);
+    setIsPaused(false);
+    setExperimentalNumerator('');
+    setExperimentalDenominator('');
+    setShowFeedback(false);
+    setShowHint(false);
+    setIsComplete(false);
+
+    // Reset spinner and coin positions
+    if (spinnerRef.current) {
+      spinnerRef.current.style.transition = 'none';
+      spinnerRef.current.style.transform = 'rotate(0deg)';
+    }
+    
+    if (coinRef.current) {
+      coinRef.current.style.transition = 'none';
+      coinRef.current.style.transform = 'rotateY(0deg)';
+    }
+    
+    // Scroll to top when resetting
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+  
+  const startExperiment = () => {
+    if (isRunning) return;
+    
+    setIsRunning(true);
+    setIsPaused(false);
+    setShowFeedback(false);
+
+    // Scroll to top when starting an experiment
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+    
+    // Schedule experiments to run at intervals
+    animationInterval.current = setInterval(() => {
+      if (trialsCompletedRef.current < numTrialsToRun) {
+        runSingleTrial();
+      } else {
+        if (animationInterval.current) {
+          clearInterval(animationInterval.current);
+          animationInterval.current = null;
+        }
+        setIsRunning(false);
+      }
+    }, 1000); // Run a trial every second
+  };
+  
+  const pauseExperiment = () => {
+    if (animationInterval.current) {
+      clearInterval(animationInterval.current);
+      animationInterval.current = null;
+    }
+    setIsRunning(false);
+    setIsPaused(true);
+  };
+  
+  const resumeExperiment = () => {
+    startExperiment();
+  };
+  
+  const runSingleTrial = () => {
+    if (!experimentConfig) return;
+    
+    let outcome: string;
+    let isTarget: boolean;
+    
+    if (experimentConfig.type === 'spinner') {
+      const sections = experimentConfig.sections || [];
+      const randomIndex = Math.floor(Math.random() * sections.length);
+      const selectedSection = sections[randomIndex];
+      outcome = selectedSection.label;
+      isTarget = selectedSection.label === experimentConfig.targetSection;
+      
+      // Animate spinner with proper reset
+      if (spinnerRef.current) {
+        // First, remove transition to reset without animation
+        spinnerRef.current.style.transition = 'none';
+        spinnerRef.current.style.transform = 'rotate(0deg)';
+        
+        // Force reflow to ensure the reset takes effect
+        void spinnerRef.current.offsetWidth;
+        
+        // Add transition back and apply the new rotation for animation
+        spinnerRef.current.style.transition = 'transform 0.8s ease-out';
+        const spins = 2 + Math.floor(Math.random() * 3); // 2-4 full spins for better visual effect
+        const rotation = 360 * spins + (randomIndex * (360 / sections.length));
+        spinnerRef.current.style.transform = `rotate(${rotation}deg)`;
+      }
+    } else if (experimentConfig.type === 'coin') {
+      const sides = experimentConfig.coinSides || [];
+      const randomIndex = Math.floor(Math.random() * sides.length);
+      const selectedSide = sides[randomIndex];
+      outcome = selectedSide.label;
+      isTarget = selectedSide.value === experimentConfig.targetValue;
+      
+      // Animate coin with proper reset
+      if (coinRef.current) {
+        // First, remove transition to reset without animation
+        coinRef.current.style.transition = 'none';
+        coinRef.current.style.transform = 'rotateY(0deg)';
+        
+        // Force reflow to ensure the reset takes effect
+        void coinRef.current.offsetWidth;
+        
+        // Add transition back and apply the new rotation for animation
+        coinRef.current.style.transition = 'transform 0.8s ease-out';
+        const flips = 5 + Math.floor(Math.random() * 3); // 5-7 flips
+        const finalRotation = flips * 360 + (randomIndex === 0 ? 0 : 180);
+        coinRef.current.style.transform = `rotateY(${finalRotation}deg)`;
+      }
+    } else {
+      return;
+    }
+    
+    setSimResults(prev => [...prev, {
+      id: prev.length + 1,
+      outcome,
+      target: isTarget
+    }]);
+    
+    setTotalTrialsCompleted(prev => prev + 1);
+    trialsCompletedRef.current += 1; // Increment the ref counter immediately
+  };
+  
+  const changeTrialsCount = (increment: number) => {
+    const newCount = Math.max(1, numTrialsToRun + increment);
+    setNumTrialsToRun(newCount);
+  };
+  
+  const loadNextScenario = () => {
+    if (scenarios && scenarioIndex < scenarios.length - 1) {
+      setScenarioIndex(prev => prev + 1);
+      resetExperiment();
+    } else {
+      // All scenarios completed
+      safeApi.onAttempt(true);
+    }
+  };
+  
+  const toggleHint = () => {
+    setShowHint(!showHint);
+  };
+  
+  // Render spinner experiment
+  const renderSpinner = () => {
+    if (!experimentConfig || !experimentConfig.sections) return null;
+    
+    const sections = experimentConfig.sections;
+    const totalSections = sections.length;
+    const angleStep = 360 / totalSections;
+    
+    const conicGradient = `conic-gradient(${sections
+      .map((section, i) => `${section.color} ${i * angleStep}deg ${(i + 1) * angleStep}deg`)
+      .join(', ')})`;
+    
+    return (
+      <div className="simulator-spinner-container">
+        <div className="simulator-spinner-arrow"></div>
+        <div
+          ref={spinnerRef}
+          className="simulator-spinner"
+          style={{
+            background: conicGradient
+            // Transition is handled in runSingleTrial for better control of animations
+          }}
+        ></div>
+      </div>
+    );
+  };
+  
+  // Render coin experiment
+  const renderCoin = () => {
+    if (!experimentConfig || !experimentConfig.coinSides) return null;
+    
+    const coinSides = experimentConfig.coinSides;
+    
+    return (
+      <div 
+        ref={coinRef}
+        className="simulator-coin" 
+        style={{
+          // Transition is handled in runSingleTrial for better control of animations
+        }}
+      >
+        {coinSides.map((side, index) => (
+          <div 
+            key={side.value} 
+            className={`simulator-coin-side simulator-coin-${side.value}`}
+            style={{ transform: index === 0 ? 'rotateY(0deg)' : 'rotateY(180deg)' }}
+          >
+            {side.label}
+          </div>
+        ))}
+      </div>
+    );
+  };
+  
+  // Render results table
+  const renderResultsTable = () => {
+    const resultsByOutcome: { [key: string]: number } = {};
+    let totalOutcomes = 0;
+    
+    simResults.forEach(result => {
+      if (!resultsByOutcome[result.outcome]) {
+        resultsByOutcome[result.outcome] = 0;
+      }
+      resultsByOutcome[result.outcome]++;
+      totalOutcomes++;
+    });
+    
+    const outcomes = Object.keys(resultsByOutcome);
+    
+    return (
+      <div className="simulator-results-container">
+        <h3>Resultados del Experimento</h3>
+        
+        <table className="simulator-results-table">
+          <thead>
+            <tr>
+              <th>Resultado</th>
+              <th>Frecuencia</th>
+              <th>Probabilidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {outcomes.map(outcome => (
+              <tr key={outcome} className={outcome === experimentConfig?.targetSection || (experimentConfig?.coinSides && experimentConfig.coinSides.find(s => s.label === outcome)?.value === experimentConfig.targetValue) ? 'highlight-row' : ''}>
+                <td>{outcome}</td>
+                <td>{resultsByOutcome[outcome]}</td>
+                <td>{totalOutcomes > 0 ? `${resultsByOutcome[outcome]}/${totalOutcomes}` : '0/0'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        {simResults.length > 0 && (
+          <div className="simulator-bar-graph">
+            <h4>Gráfico de Resultados</h4>
+            <div className="graph-container">
+              {outcomes.map(outcome => {
+                const percentage = totalOutcomes > 0 ? (resultsByOutcome[outcome] / totalOutcomes) * 100 : 0;
+                return (
+                  <div key={outcome} className="graph-bar-container">
+                    <div 
+                      className="graph-bar" 
+                      style={{ 
+                        height: `${percentage}%`,
+                        backgroundColor: outcome === experimentConfig?.targetSection || (experimentConfig?.coinSides && experimentConfig.coinSides.find(s => s.label === outcome)?.value === experimentConfig.targetValue) 
+                          ? '#ff9800' 
+                          : '#2196f3'
+                      }}
+                    ></div>
+                    <div className="graph-label">{outcome}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+  
+  // If there's an error or no scenario, show an error message
+  if (error || !currentScenario || !experimentConfig) {
+    return <div className="error-message">Error: {error || "No experiment configuration found"}</div>;
+  }
+  
+  return (
+    <div className="experimental-probability-simulator" ref={containerRef}>
+      <div className="simulator-header">
+        <h2>Laboratorio de Probabilidad Experimental</h2>
+        <p>{currentScenario.description}</p>
+      </div>
+      
+      <div className="simulator-main">
+        <div className="simulator-experiment-area">
+          <h3>{currentScenario.title}</h3>
+          
+          <div className="simulator-controls">
+            <div className="trials-control">
+              <button onClick={() => changeTrialsCount(-1)} disabled={numTrialsToRun <= 1 || isRunning}>-</button>
+              <span>Experimentos: {numTrialsToRun}</span>
+              <button onClick={() => changeTrialsCount(1)} disabled={isRunning}>+</button>
+            </div>
+            
+            <div className="experiment-buttons">
+              {!isRunning && !isPaused && (
+                <button 
+                  className="start-button"
+                  onClick={startExperiment}
+                  disabled={totalTrialsCompleted >= numTrialsToRun}
+                >
+                  Iniciar Experimento
+                </button>
+              )}
+              
+              {isRunning && (
+                <button 
+                  className="pause-button"
+                  onClick={pauseExperiment}
+                >
+                  Pausar
+                </button>
+              )}
+              
+              {isPaused && (
+                <button 
+                  className="resume-button"
+                  onClick={resumeExperiment}
+                  disabled={totalTrialsCompleted >= numTrialsToRun}
+                >
+                  Continuar
+                </button>
+              )}
+              
+              {totalTrialsCompleted > 0 && (
+                <button 
+                  className="reset-button"
+                  onClick={resetExperiment}
+                  disabled={isRunning}
+                >
+                  Reiniciar
+                </button>
+              )}
+            </div>
+          </div>
+          
+          <div className="experiment-visual">
+            {experimentConfig.type === 'spinner' ? renderSpinner() : renderCoin()}
+          </div>
+          
+          <div className="experiment-progress">
+            <div className="progress-bar">
+              <div 
+                className="progress-fill" 
+                style={{ width: `${(totalTrialsCompleted / numTrialsToRun) * 100}%` }}
+              ></div>
+            </div>
+            <div className="progress-text">
+              {totalTrialsCompleted} de {numTrialsToRun} experimentos completados
+            </div>
+          </div>
+        </div>
+        
+        <div className="simulator-results-section">
+          {renderResultsTable()}
+          
+          {totalTrialsCompleted > 0 && (
+            <div className="probability-input-area">
+              <h3>Calcula la Probabilidad Experimental</h3>
+              <p>
+                {experimentConfig.type === 'spinner' 
+                  ? `¿Cuál es la probabilidad experimental de obtener ${experimentConfig.targetSection}?`
+                  : `¿Cuál es la probabilidad experimental de obtener ${experimentConfig.coinSides?.find(s => s.value === experimentConfig.targetValue)?.label}?`
+                }
+              </p>
+              
+              <div className="fraction-input">
+                <input
+                  type="text"
+                  className={`fraction-field ${activeField === 'numerator' ? 'active' : ''}`}
+                  value={experimentalNumerator}
+                  onChange={(e) => setExperimentalNumerator(e.target.value.replace(/[^0-9]/g, ''))}
+                  onClick={() => setActiveField('numerator')}
+                  readOnly
+                  placeholder="?"
+                  ref={numeratorInputRef}
+                />
+                <div className="fraction-divider"></div>
+                <input
+                  type="text"
+                  className={`fraction-field ${activeField === 'denominator' ? 'active' : ''}`}
+                  value={experimentalDenominator}
+                  onChange={(e) => setExperimentalDenominator(e.target.value.replace(/[^0-9]/g, ''))}
+                  onClick={() => setActiveField('denominator')}
+                  readOnly
+                  placeholder="?"
+                  ref={denominatorInputRef}
+                />
+              </div>
+              
+              <button 
+                className="check-button"
+                onClick={checkAnswer}
+                disabled={!experimentalNumerator || !experimentalDenominator}
+              >
+                Verificar
+              </button>
+            </div>
+          )}
+          
+          {showFeedback && (
+            <div className={`feedback-message ${isComplete ? 'feedback-success' : ''}`}>
+              {feedbackMessage}
+              
+              {isComplete && (
+                <button className="next-scenario-button" onClick={loadNextScenario}>
+                  {scenarioIndex < (scenarios?.length - 1 || 0) ? "Siguiente Experimento" : "Completar"}
+                </button>
+              )}
+            </div>
+          )}
+          
+          <div className="simulator-hint-container">
+            <button className="hint-button" onClick={toggleHint}>
+              {showHint ? 'Ocultar Pista' : 'Ver Pista'}
+            </button>
+            
+            {showHint && (
+              <div className="hint-box">
+                {currentScenario.hint}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ExperimentalProbabilitySimulatorExercise;

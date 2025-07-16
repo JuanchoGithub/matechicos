@@ -1,6 +1,6 @@
 
 
-import { Exercise, ExerciseComponentType, OriginalIconName, MetricConversionQuestChallenge, PerimeterPuzzleChallenge, AreaAdventureChallenge } from './types';
+import { Exercise, ExerciseComponentType, OriginalIconName, MetricConversionQuestChallenge, PerimeterPuzzleChallenge, AreaAdventureChallenge, VolumeVoyageChallenge, MeasurementDataExplorerChallengeG5 } from './types';
 
 // Data for the Metric Conversion Quest exercise
 const metricConversionQuestChallenges: MetricConversionQuestChallenge[] = [
@@ -75,6 +75,139 @@ const areaAdventureChallenges: AreaAdventureChallenge[] = [
     { id: 'g5_area_trap_3', prompt: "Calcula el área de un trapecio cuyas bases son 10 m y 8 m, y su altura es de 5 m.", shapeType: 'trapezoid', dimensions: { base1: 10, base2: 8, height: 5 }, unit: 'm', correctAnswer: 45 },
 ];
 
+// Volume Voyage Challenges
+const volumeVoyageChallenges: VolumeVoyageChallenge[] = [
+    { 
+        id: 'cube_4cm', 
+        prompt: "Calcula el volumen de un cubo con lado 4 cm.", 
+        shapeType: 'cubo', 
+        dimensions: { length: 4, width: 4, height: 4 }, 
+        unit: 'cm', 
+        icon: '🧊', 
+        correctAnswer: 64 
+    },
+    { 
+        id: 'prism_5x3x2', 
+        prompt: "Encuentra el volumen de un prisma rectangular con largo 5 m, ancho 3 m, y alto 2 m.", 
+        shapeType: 'prismaRectangular', 
+        dimensions: { length: 5, width: 3, height: 2 }, 
+        unit: 'm', 
+        icon: '📦', 
+        correctAnswer: 30 
+    },
+    { 
+        id: 'cube_2cm', 
+        prompt: "Si construyes un cubo con arista de 2 cm, ¿cuál es su volumen?", 
+        shapeType: 'cubo', 
+        dimensions: { length: 2, width: 2, height: 2 }, 
+        unit: 'cm', 
+        icon: '🧊', 
+        correctAnswer: 8 
+    },
+    { 
+        id: 'prism_6x2x3', 
+        prompt: "Calcula el volumen de una caja de 6 cm de largo, 2 cm de ancho y 3 cm de alto.", 
+        shapeType: 'prismaRectangular', 
+        dimensions: { length: 6, width: 2, height: 3 }, 
+        unit: 'cm', 
+        icon: '🎁', 
+        correctAnswer: 36 
+    },
+    { 
+        id: 'cube_3m', 
+        prompt: "Un tanque de agua tiene forma de cubo con lado 3 m. ¿Cuál es su volumen?", 
+        shapeType: 'cubo', 
+        dimensions: { length: 3, width: 3, height: 3 }, 
+        unit: 'm', 
+        icon: '💧', 
+        correctAnswer: 27 
+    },
+    { 
+        id: 'prism_10x4x5', 
+        prompt: "Diseña una estación espacial con dimensiones de 10 m x 4 m x 5 m. ¿Cuál es su volumen?", 
+        shapeType: 'prismaRectangular', 
+        dimensions: { length: 10, width: 4, height: 5 }, 
+        unit: 'm', 
+        icon: '🚀', 
+        correctAnswer: 200 
+    },
+];
+
+// Measurement Data Explorer Challenges
+const measurementDataExplorerChallenges: MeasurementDataExplorerChallengeG5[] = [
+    {
+        id: 'plant_heights',
+        mode: 'create',
+        title: "¡Estamos midiendo el crecimiento de nuestras plantas!",
+        data: [2.5, 3, 2.5, 4],
+        unit: 'cm',
+        question: "¿Cuántas plantas miden 2.5 cm?",
+        correctAnswer: 2,
+        dotIcon: "🌱",
+        lineRange: [0, 5],
+        step: 0.5,
+    },
+    {
+        id: 'weights_sum',
+        mode: 'interpret',
+        title: "Observa las pesas en la balanza del laboratorio.",
+        data: [0.5, 0.5, 1],
+        unit: 'kg',
+        question: "¿Cuál es el peso total de todas las pesas?",
+        correctAnswer: 2,
+        dotIcon: "⚖️",
+        lineRange: [0, 2],
+        step: 0.5,
+    },
+    {
+        id: 'temperatures_mean',
+        mode: 'create',
+        title: "Registramos temperaturas para nuestro experimento.",
+        data: [22, 24, 23, 22, 25],
+        unit: '°C',
+        question: "¿Cuál es la temperatura más frecuente?",
+        correctAnswer: 22,
+        dotIcon: "🌡️",
+        lineRange: [20, 26],
+        step: 1,
+    },
+    {
+        id: 'pencil_lengths',
+        mode: 'create',
+        title: "Medimos lápices usados en nuestra clase.",
+        data: [12, 10, 10, 8, 12, 9],
+        unit: 'cm',
+        question: "¿Cuántos lápices miden 10 cm?",
+        correctAnswer: 2,
+        dotIcon: "✏️",
+        lineRange: [7, 13],
+        step: 1,
+    },
+    {
+        id: 'liquid_volumes',
+        mode: 'interpret',
+        title: "Volúmenes de líquidos medidos en probetas.",
+        data: [25, 50, 25, 75, 50],
+        unit: 'ml',
+        question: "¿Cuál es la diferencia entre el mayor y menor volumen?",
+        correctAnswer: 50,
+        dotIcon: "💧",
+        lineRange: [0, 100],
+        step: 25,
+    },
+    {
+        id: 'jump_distances',
+        mode: 'create',
+        title: "Distancias de saltos en clase de educación física.",
+        data: [1.5, 1.2, 1.2, 1.8, 1.5, 1.3],
+        unit: 'm',
+        question: "¿Cuál es la moda (valor más frecuente) de las distancias de salto?",
+        correctAnswer: 1.5,
+        dotIcon: "🏃",
+        lineRange: [1, 2],
+        step: 0.1,
+    },
+];
 
 export const fifthGradeMedidasExercises: Exercise[] = [
   { 
@@ -116,5 +249,32 @@ export const fifthGradeMedidasExercises: Exercise[] = [
       allowDecimal: true,
     },
     question: 'Calcula el área de la figura:',
+  },
+  {
+    id: 'g5-s4-e4',
+    title: 'Volume Voyage',
+    description: 'Explora y calcula el volumen de cuerpos geométricos.',
+    iconName: 'MeasureIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.VOLUMEN_VOYAGE_G5,
+    data: {
+      totalStars: 8,
+      challenges: volumeVoyageChallenges,
+      allowDecimal: false,
+    },
+    question: 'Calcula el volumen del cuerpo geométrico:',
+  },
+  {
+    id: 'g5-s4-e5',
+    title: 'Measurement Data Explorer',
+    description: 'Crea e interpreta gráficos de puntos con datos de medición.',
+    iconName: 'MeasureIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.MEASUREMENT_DATA_EXPLORER_G5,
+    data: {
+      totalStars: 10,
+      challenges: measurementDataExplorerChallenges,
+    },
+    question: 'Trabaja con datos de medición:',
   }
 ];

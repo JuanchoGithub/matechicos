@@ -1,0 +1,604 @@
+/* ExperimentalProbabilitySimulatorExercise.css */
+.experimental-probability-simulator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  overflow-y: auto;
+  max-height: 80vh;
+  padding: 0 10px 0 0;
+  margin: 0 auto;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  box-sizing: border-box;
+}
+
+.simulator-header {
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.simulator-header h2 {
+  color: #3f51b5;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+.simulator-header p {
+  color: #666;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.simulator-main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Changed from space-around to avoid uneven spacing */
+  width: 100%;
+  overflow-y: visible;
+  gap: 20px;
+  min-height: 350px;
+}
+
+.simulator-experiment-area {
+  background-color: #f5f5f5;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: calc(50% - 20px); /* Set fixed width to ensure proper layout */
+  min-width: 280px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 50vh;
+  overflow-y: auto;
+  position: sticky;
+  align-items: center;
+  top: 0;
+}
+
+.simulator-experiment-area h3 {
+  color: #ff5722;
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.simulator-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.trials-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.trials-control button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trials-control button:disabled {
+  background-color: #bbdefb;
+  cursor: not-allowed;
+}
+
+.trials-control span {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.experiment-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.experiment-buttons button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.start-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.start-button:hover {
+  background-color: #388e3c;
+}
+
+.pause-button {
+  background-color: #ff9800;
+  color: white;
+}
+
+.pause-button:hover {
+  background-color: #f57c00;
+}
+
+.resume-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.resume-button:hover {
+  background-color: #1976d2;
+}
+
+.reset-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.reset-button:hover {
+  background-color: #d32f2f;
+}
+
+.experiment-buttons button:disabled {
+  background-color: #e0e0e0;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+.experiment-visual {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 180px; /* Reduced from 220px */
+  position: relative;
+}
+
+.experiment-progress {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 15px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.simulator-results-section {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: calc(50% - 20px); /* Set fixed width to match experiment area */
+  min-width: 280px;
+  flex: 1;
+  max-height: 50vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.simulator-results-container {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.simulator-results-container h3 {
+  color: #3f51b5;
+  margin-top: 0;
+  margin-bottom: 15px;
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 2;
+  padding: 5px 0;
+}
+
+.simulator-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  table-layout: fixed;
+}
+
+.simulator-results-table thead {
+  position: sticky;
+  top: 45px; /* Adjusted to account for the heading */
+  z-index: 1;
+}
+
+.simulator-results-table th,
+.simulator-results-table td {
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+  text-align: center;
+}
+
+.simulator-results-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  color: #333;
+}
+
+.table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-width: 100%;
+  margin-bottom: 15px;
+  /* Ensure the table container is always visible */
+  min-height: 100px;
+  max-height: 200px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  position: relative;
+}
+
+.highlight-row {
+  background-color: #fff9c4;
+}
+
+.simulator-bar-graph {
+  margin-top: 20px;
+}
+
+.simulator-bar-graph h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #3f51b5;
+}
+
+.graph-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 200px;
+  width: 100%;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.graph-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  flex: 1;
+  max-height: 60vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.graph-bar {
+  width: 30px;
+  max-width: 80%;
+  background-color: #2196f3;
+  transition: height 0.5s ease;
+  margin-bottom: 5px;
+}
+
+.graph-label {
+  text-align: center;
+  font-size: 12px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.probability-input-area {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.probability-input-area h3 {
+  color: #3f51b5;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.fraction-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.fraction-field {
+  width: 60px;
+  height: 60px;
+  text-align: center;
+  font-size: 24px;
+  border: 2px solid #2196f3;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.fraction-field.active {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.3);
+}
+
+.fraction-divider {
+  width: 50px;
+  height: 3px;
+  background-color: #333;
+  margin: 0 5px;
+}
+
+.check-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.check-button:hover {
+  background-color: #388e3c;
+}
+
+.check-button:disabled {
+  background-color: #e0e0e0;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+.feedback-message {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #e8f5e9;
+  border-left: 5px solid #4caf50;
+  color: #2e7d32;
+}
+
+.feedback-success {
+  background-color: #e8f5e9;
+  border-color: #4caf50;
+}
+
+.next-scenario-button {
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.next-scenario-button:hover {
+  background-color: #303f9f;
+}
+
+.simulator-hint-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.hint-button {
+  background-color: #9c27b0;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.hint-button:hover {
+  background-color: #7b1fa2;
+}
+
+.hint-box {
+  background-color: #f3e5f5;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 10px;
+  border-left: 5px solid #9c27b0;
+  text-align: left;
+  color: #4a148c;
+}
+
+.error-message {
+  color: #d32f2f;
+  padding: 20px;
+  background-color: #ffebee;
+  border-radius: 5px;
+  text-align: center;
+  margin: 20px;
+}
+
+/* Spinner Styles */
+.simulator-spinner-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.simulator-spinner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 5px solid #333;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: transform 1s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.simulator-spinner-arrow {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 20px solid #d32f2f;
+  z-index: 1;
+}
+
+/* Coin Styles */
+.simulator-coin {
+  width: 150px;
+  height: 150px;
+  transform-style: preserve-3d;
+  position: relative;
+  transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.simulator-coin-side {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  backface-visibility: hidden;
+}
+
+.simulator-coin-heads {
+  background: linear-gradient(145deg, #FFD700, #FFC107);
+  border: 5px solid #e6c200;
+  transform: rotateY(0deg);
+}
+
+.simulator-coin-tails {
+  background: linear-gradient(145deg, #FFC107, #FFD700);
+  border: 5px solid #e6c200;
+  transform: rotateY(180deg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .simulator-main {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .simulator-experiment-area,
+  .simulator-results-section {
+    width: 100%;
+    max-width: 600px;
+    max-height: none;
+    min-height: auto;
+    margin-bottom: 20px;
+  }
+  
+  .simulator-results-container h3 {
+    position: static;
+  }
+  
+  .simulator-results-table thead {
+    position: sticky;
+    top: 0;
+    background-color: #f5f5f5;
+  }
+  
+  .simulator-results-table th {
+    position: sticky;
+    top: 0;
+    background-color: #f5f5f5;
+    z-index: 2;
+  }
+  
+  .experimental-probability-simulator {
+    max-height: none;
+    overflow-y: visible;
+    padding: 0 10px;
+  }
+  
+  .table-container {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    min-height: 150px;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  
+  .simulator-experiment-area {
+    max-height: 450px;
+  }
+  
+  .experiment-visual {
+    height: 150px;
+  }
+}
+
+/* Even smaller screens */
+@media (max-width: 600px) {
+  .simulator-main {
+    gap: 10px;
+  }
+  
+  .simulator-experiment-area,
+  .simulator-results-section {
+    padding: 10px;
+  }
+  
+  .simulator-results-table th,
+  .simulator-results-table td {
+    padding: 5px;
+    font-size: 0.9em;
+  }
+  
+  .experiment-buttons button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

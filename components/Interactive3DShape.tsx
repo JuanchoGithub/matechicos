@@ -1,5 +1,5 @@
 
-import React, { useRef, useMemo, useEffect, Suspense } from 'react';
+import React, { useRef, useMemo, useEffect, Suspense, useState } from 'react';
 import { Canvas, type ThreeElements } from '@react-three/fiber';
 import * as THREE from 'three';
 import { OrbitControls } from '@react-three/drei';
@@ -16,6 +16,7 @@ declare global {
       sphereGeometry: ThreeElements['sphereGeometry'];
       ambientLight: ThreeElements['ambientLight'];
       pointLight: ThreeElements['pointLight'];
+      boxGeometry: ThreeElements['boxGeometry'];
     }
   }
 }
@@ -222,4 +223,125 @@ export const InteractivePyramid: React.FC<ShapeWrapperProps> = (props) => {
         return { geometry: geom, materials: mats, uniqueVertexPositions: positions, edgeVertexPairs: edges };
     }, []);
     return <BaseCanvas className={props.className}><Shape {...finalProps} geometry={geometry} materials={materials} edgeVertexPairs={edgeVertexPairs} uniqueVertexPositions={uniqueVertexPositions} /></BaseCanvas>;
+};
+
+// Simple volumetric cube/prism visualization component for the VolumeVoyage exercise
+// This component doesn't rely on Three.js for simplicity
+export const VolumeVisualization: React.FC<{
+    length: number;
+    width: number;
+    height: number;
+    maxSize?: number;
+    animate?: boolean;
+}> = ({ length, width, height, maxSize = 300, animate = false }) => {
+    const [currentHeight, setCurrentHeight] = useState(animate ? 0 : height);
+    const animationRef = useRef<number | null>(null);
+    
+    // Determine scale factor to fit within maxSize
+    const maxDimension = Math.max(length, width, height);
+    const scale = maxDimension > 0 ? maxSize / maxDimension / 1.5 : 20;
+    
+    // Animation effect
+    useEffect(() => {
+        if (!animate) {
+            setCurrentHeight(height);
+            return;
+        }
+        
+        let startTime = Date.now();
+        const duration = 1000; // 1 second animation
+        
+        const animateBuild = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            setCurrentHeight(progress * height);
+            
+            if (progress < 1) {
+                animationRef.current = requestAnimationFrame(animateBuild);
+            }
+        };
+        
+        animationRef.current = requestAnimationFrame(animateBuild);
+        
+        return () => {
+            if (animationRef.current !== null) {
+                cancelAnimationFrame(animationRef.current);
+            }
+        };
+    }, [height, animate]);
+    
+    // CSS 3D Cube
+    return (
+        <div className="w-full h-full flex items-center justify-center perspective-800">
+            <div 
+                className="relative transform-style-3d" 
+                style={{
+                    width: `${length * scale}px`,
+                    height: `${currentHeight * scale}px`,
+                    transformStyle: 'preserve-3d',
+                    transform: 'rotateX(-20deg) rotateY(-30deg)'
+                }}
+            >
+                {/* Front face */}
+                <div 
+                    className="absolute w-full h-full bg-blue-400 bg-opacity-80 border border-blue-700"
+                    style={{ transform: 'translateZ(0)' }}
+                />
+                
+                {/* Back face */}
+                <div 
+                    className="absolute w-full h-full bg-blue-300 bg-opacity-80 border border-blue-700"
+                    style={{ transform: `translateZ(${-width * scale}px)` }}
+                />
+                
+                {/* Top face */}
+                <div 
+                    className="absolute w-full bg-blue-500 bg-opacity-80 border border-blue-700"
+                    style={{ 
+                        transform: `rotateX(90deg) translateZ(0)`,
+                        width: `${length * scale}px`,
+                        height: `${width * scale}px`,
+                        transformOrigin: 'top'
+                    }}
+                />
+                
+                {/* Bottom face */}
+                <div 
+                    className="absolute w-full bg-blue-500 bg-opacity-80 border border-blue-700"
+                    style={{ 
+                        transform: `rotateX(-90deg) translateZ(${currentHeight * scale}px)`,
+                        width: `${length * scale}px`,
+                        height: `${width * scale}px`,
+                        transformOrigin: 'bottom'
+                    }}
+                />
+                
+                {/* Left face */}
+                <div 
+                    className="absolute h-full bg-blue-600 bg-opacity-80 border border-blue-700"
+                    style={{ 
+                        transform: `rotateY(-90deg) translateZ(0)`,
+                        width: `${width * scale}px`,
+                        height: `${currentHeight * scale}px`
+                    }}
+                />
+                
+                {/* Right face */}
+                <div 
+                    className="absolute h-full bg-blue-600 bg-opacity-80 border border-blue-700"
+                    style={{ 
+                        transform: `rotateY(90deg) translateZ(${length * scale}px)`,
+                        width: `${width * scale}px`,
+                        height: `${currentHeight * scale}px`
+                    }}
+                />
+            </div>
+            
+            {/* Dimensions display */}
+            <div className="absolute bottom-2 left-2 text-sm font-mono text-blue-900">
+                <div>L: {length} × W: {width} × H: {height}</div>
+                <div>Volume: {length * width * height} cubic units</div>
+            </div>
+        </div>
+    );
 };

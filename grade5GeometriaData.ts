@@ -1,4 +1,4 @@
-import { Exercise, ExerciseComponentType, OriginalIconName, TriangleQuadExplorerChallenge, QuadrilateralTypeId, QUADRILATERAL_TYPE_LABELS, Shape3DCounterChallengeG5, NetsOf3DShapesChallenge, NetConstructionPieceType } from './types';
+import { Exercise, ExerciseComponentType, TriangleQuadExplorerChallenge, QuadrilateralTypeId, QUADRILATERAL_TYPE_LABELS, NetsOf3DShapesChallenge } from './types';
 import { polygonSortingChallenges, quadrilateralDefinitions, shape3DCountingChallenges, NetCuboSVG, NetPrismaRectSVG, NetPiramideCuadrSVG, ConoSVG, CilindroSVG, NetCilindroSVG, NetConoSVG } from './geometryDefinitions'; 
 import { InteractivePrism, InteractiveCube, InteractivePyramid } from '@components';
 import { shuffleArray } from './utils';
@@ -18,7 +18,8 @@ const triangleAndQuadChallenges: TriangleQuadExplorerChallenge[] = [
     { type: 'quad_property', description: 'Mis lados opuestos son iguales, y mis 4 ángulos son rectos.', correctShapeId: 'rectangulo', options: quadOptions },
 ];
 
-const g5NetsChallenges: NetsOf3DShapesChallenge[] = [
+// Separate construction challenges
+const g5ConstructionNetsChallenges: NetsOf3DShapesChallenge[] = [
     // Construct challenges
     {
         type: 'construct',
@@ -43,7 +44,11 @@ const g5NetsChallenges: NetsOf3DShapesChallenge[] = [
             invalidShape: "Este patrón no se puede plegar para formar el prisma.",
             correct: "¡Patrón correcto! Se puede formar el prisma."
         }
-    },
+    }
+];
+
+// Separate match challenges
+const g5MatchNetsChallenges: NetsOf3DShapesChallenge[] = [
     // Match challenges
     {
         type: 'match',
@@ -97,6 +102,65 @@ const g5NetsChallenges: NetsOf3DShapesChallenge[] = [
     }
 ];
 
+// Coordinate Plane Navigator challenges
+const coordinatePlaneChallenges = [
+  {
+    id: 'coord-challenge-1',
+    type: 'plot',
+    prompt: 'Ubica el punto (5,2) en el plano de coordenadas.',
+    x: 5,
+    y: 2,
+    hints: {
+      initial: 'Recuerda: el primer número es la coordenada X (horizontal) y el segundo es la Y (vertical).',
+      afterAttempt: 'Para ubicar (5,2), mueve 5 unidades a la derecha y 2 unidades hacia arriba desde el origen.'
+    }
+  },
+  {
+    id: 'coord-challenge-2',
+    type: 'identify',
+    prompt: '¿Cuáles son las coordenadas del tesoro marcado en el mapa?',
+    x: 4,
+    y: 6,
+    hints: {
+      initial: 'Las coordenadas se escriben como (x,y), donde x es la distancia horizontal y y es la vertical.',
+      afterAttempt: 'Cuenta primero cuántas unidades está a la derecha (eje X), luego cuántas unidades está hacia arriba (eje Y).'
+    }
+  },
+  {
+    id: 'coord-challenge-3',
+    type: 'plot',
+    prompt: 'Ubica el punto (7,3) en el plano de coordenadas.',
+    x: 7,
+    y: 3,
+    hints: {
+      afterAttempt: 'Para ubicar (7,3), mueve 7 unidades a la derecha y 3 unidades hacia arriba desde el origen.'
+    }
+  },
+  {
+    id: 'coord-challenge-4',
+    type: 'identify',
+    prompt: '¿Cuáles son las coordenadas del tesoro marcado en el mapa?',
+    x: 2,
+    y: 8,
+    hints: {
+      afterAttempt: 'El tesoro está 2 unidades a la derecha y 8 unidades hacia arriba.'
+    }
+  },
+  {
+    id: 'coord-challenge-5',
+    type: 'plot',
+    prompt: 'Ubica el punto (3,7) en el plano de coordenadas.',
+    x: 3,
+    y: 7
+  },
+  {
+    id: 'coord-challenge-6',
+    type: 'identify',
+    prompt: '¿Cuáles son las coordenadas del tesoro marcado en el mapa?',
+    x: 8,
+    y: 4
+  }
+];
 
 export const fifthGradeGeometriaExercises: Exercise[] = [
   {
@@ -141,15 +205,41 @@ export const fifthGradeGeometriaExercises: Exercise[] = [
   },
   {
     id: 'g5-s5-e4',
-    title: 'Constructor de Figuras 3D',
-    description: 'Construye o identifica las redes que forman cuerpos geométricos.',
+    title: 'Constructor de Redes 3D',
+    description: 'Construye las redes que forman cuerpos geométricos.',
     iconName: 'GeometryIcon',
     isLocked: false,
     componentType: ExerciseComponentType.NETS_OF_3D_SHAPES_G5,
     data: {
-      totalStars: 10,
-      challenges: g5NetsChallenges
+      totalStars: 4,
+      challenges: g5ConstructionNetsChallenges
     },
-    question: '¿Puedes construir o identificar la red correcta?',
+    question: '¿Puedes construir la red correcta?',
+  },
+  {
+    id: 'g5-s5-e5',
+    title: 'Identificador de Redes 3D',
+    description: 'Identifica las redes que forman cuerpos geométricos.',
+    iconName: 'GeometryIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.NETS_OF_3D_SHAPES_G5,
+    data: {
+      totalStars: 6,
+      challenges: g5MatchNetsChallenges
+    },
+    question: '¿Qué red forma esta figura 3D?',
+  },
+  {
+    id: 'g5-s5-e6',
+    title: 'Navegador del Plano Cartesiano',
+    description: 'Localiza y ubica puntos en el primer cuadrante del plano cartesiano.',
+    iconName: 'GeometryIcon',
+    isLocked: false,
+    componentType: ExerciseComponentType.COORDINATE_PLANE_NAVIGATOR_G5,
+    data: {
+      totalStars: 6,
+      challenges: coordinatePlaneChallenges
+    },
+    question: 'Encuentra el tesoro en el mapa de coordenadas:',
   }
 ];

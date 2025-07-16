@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { OriginalIconName as ImportedOriginalIconName } from './components/icons'; // Corrected import, aliased to avoid conflict
 
@@ -45,7 +43,8 @@ export enum ExerciseComponentType {
   COMPARAR_HASTA_10000 = 'comparar_hasta_10000', // Used for up to 9,999,999 by varying data
   COMPONER_HASTA_10000_ABACO = 'componer_hasta_10000_abaco', // Used for up to 9,999,999 by varying data
   COMPONER_HASTA_10000_TEXTO = 'componer_hasta_10000_texto', // Used for up to 9,999,999 by varying data
-  APROXIMAR_NUMERO = 'aproximar_numero', 
+  APROXIMAR_NUMERO = 'aproximar_numero',
+  RANGE_FINDER_CHALLENGE = 'range_finder_challenge',
   IDENTIFICAR_ORDINALES = 'identificar_ordinales', 
   ARITMETICA_SIMPLE_2_CIFRAS = 'aritmetica_simple_2_cifras', 
   REPRESENTAR_FRACCIONES = 'representar_fracciones',
@@ -99,7 +98,9 @@ export enum ExerciseComponentType {
   COMPARAR_PROBABILIDADES = 'comparar_probabilidades',
   EXPRESAR_PROBABILIDAD_SIMPLE = 'expresar_probabilidad_simple',
   FRECUENCIA_SUCESOS = 'frecuencia_sucesos', 
-  INTERPRETAR_PICTOGRAMAS = 'interpretar_pictogramas', 
+  INTERPRETAR_PICTOGRAMAS = 'interpretar_pictogramas',
+  BAR_GRAPH_BUILDER = 'bar_graph_builder', 
+  DATA_COLLECTION_QUEST = 'data_collection_quest',
 
   // New types for 1st Grade Numeros
   CONTAR_ELEMENTOS = 'contar_elementos',
@@ -124,7 +125,7 @@ export enum ExerciseComponentType {
   POSICION_RELATIVA_OBJETOS = 'posicion_relativa_objetos',
 
   // New types for 2nd Grade
-  VISUAL_MULTIPLICATION_INTRO = 'visual_multiplication_intro',
+  VISUAL_MULTIPLICACION_INTRO = 'visual_multiplication_intro',
   MULTIPLICATION_TABLE_PRACTICE = 'multiplication_table_practice',
   SIMPLE_CHANCE_GAME = 'simple_chance_game',
 
@@ -199,15 +200,29 @@ export enum ExerciseComponentType {
   PERIMETER_PUZZLE_BUILDER_G5 = 'perimeter_puzzle_builder_g5',
   AREA_ADVENTURE_G5 = 'area_adventure_g5',
   AREA_PUZZLE_BUILDER_G5 = 'area_puzzle_builder_g5',
+  MEAN_VALUE_MISSION = 'mean_value_mission',
   VOLUMEN_VOYAGE_G5 = 'volumen_voyage_g5',
   MEASUREMENT_DATA_EXPLORER_G5 = 'measurement_data_explorer_g5',
   // --- END 5th Grade Medidas Component Types ---
+  
+  // --- START 5th Grade Estadistica Component Types ---
+  LINE_PLOT_CREATOR_G5 = 'line_plot_creator_g5',
+  // --- END 5th Grade Estadistica Component Types ---
+
+  // --- START 5th Grade Probabilidad Component Types ---
+  LIKELIHOOD_SORTING_GAME = 'likelihood_sorting_game',
+  SPINNER_PROBABILITY = 'spinner_probability',
+  COIN_DICE_PROBABILITY = 'coin_dice_probability',
+  PROBABILITY_WORD_PROBLEM = 'probability_word_problem',
+  EXPERIMENTAL_PROBABILITY_SIMULATOR = 'experimental_probability_simulator',
+  // --- END 5th Grade Probabilidad Component Types ---
 
   // --- START 5th Grade Geometria Component Types ---
   POLYGON_SORTING_CHALLENGE_G5 = 'polygon_sorting_challenge_g5',
   TRIANGLE_QUAD_EXPLORER_G5 = 'triangle_quad_explorer_g5',
   SHAPE_3D_COUNTER_G5 = 'shape_3d_counter_g5',
   NETS_OF_3D_SHAPES_G5 = 'nets_of_3d_shapes_g5',
+  COORDINATE_PLANE_NAVIGATOR_G5 = 'coordinate_plane_navigator_g5', // New component type
   // --- END 5th Grade Geometria Component Types ---
 
   // --- START Problemas New Component Types (Multiple Grades) ---
@@ -398,7 +413,8 @@ export interface Exercise {
   content?: React.ReactNode; 
   componentType?: ExerciseComponentType; 
   question?: string; 
-  data?: any; 
+  data?: any;
+  type?: string; // Added to support the spinner-probability type
 }
 
 export interface SubjectData {
@@ -545,6 +561,23 @@ export interface MultiLineChartScenarioTemplate {
 }
 export type CertaintyLevel = 'posible' | 'imposible' | 'seguro';
 export interface CertaintyScenario { id: string; eventText: string; correctCertainty: CertaintyLevel; emoji?: string; }
+
+// Likelihood levels for 5th grade probability sorting game
+export type LikelihoodLevel = 'certain' | 'likely' | 'unlikely' | 'impossible';
+export const LIKELIHOOD_LEVEL_LABELS: Record<LikelihoodLevel, string> = { 
+  certain: 'Seguro', 
+  likely: 'Probable', 
+  unlikely: 'Poco probable', 
+  impossible: 'Imposible' 
+};
+export interface LikelihoodEventScenario { 
+  id: string; 
+  eventText: string; 
+  correctLikelihood: LikelihoodLevel; 
+  emoji?: string;
+  feedbackMessage?: string; 
+}
+
 export type FrequencyLevel = 'nunca' | 'a_veces' | 'siempre';
 export const FREQUENCY_LEVEL_LABELS: Record<FrequencyLevel, string> = { nunca: 'Nunca', a_veces: 'A Veces', siempre: 'Siempre', };
 export interface FrecuenciaScenario { id: string; eventText: string; correctFrequency: FrequencyLevel; emoji?: string; }
@@ -816,369 +849,30 @@ export interface DependenciaSucesosChallenge {
   correctAnswerId: string; // 'independientes' or 'dependientes'
 }
 
-
-// For MedirAngulosTransportadorG4
-export interface MedirAngulosTransportadorG4Challenge {
-  id: string;
-  angleDegrees: number; // The actual angle to be measured/identified
-  options: number[]; // Array of degree options, one is correctAngle
-  imageUrl?: string; // Optional: Path to an image showing an angle on a protractor
-  questionText?: string; // e.g., "Mide el ángulo mostrado:" or "¿Cuántos grados mide este ángulo?"
-}
-
-// --- START New Types for Line Plot Exercise G4 ---
-export interface LinePlotPointG4 {
-  value: number;    // The value on the number line (e.g., number of pets, hours read)
-  frequency: number; // How many X's or dots above this value
-}
-
-export interface LinePlotQuestionG4 {
-  id: string;
-  text: string;
-  questionType: 'mcq' | 'numeric'; // Multiple choice or direct number input
-  options?: string[]; // For MCQ: Array of string options
-  correctAnswer: string; // String representation of the answer (either the MCQ option string or the numeric string)
-}
-
-export interface LinePlotChallengeG4 {
-  id: string;
-  title: string;
-  xAxisLabel: string;
-  data: LinePlotPointG4[]; // The actual data points for the plot
-  questions: LinePlotQuestionG4[]; // Array of questions related to this specific plot
-  icon?: string; // Optional emoji for the scenario
-}
-// --- END New Types for Line Plot Exercise G4 ---
-
-// --- START New Types for Organizing Data in Frequency Table G4 ---
-export type RawDataItemG4 = string | number; // Could be string (color, sport) or number (dice roll)
-
-export interface FrequencyTableChallengeG4 {
-  id: string;
-  description: string; // e.g., "Los colores favoritos de la clase son:"
-  rawData: RawDataItemG4[]; // e.g., ["Rojo", "Azul", "Rojo", "Verde"]
-  categories: string[]; // Unique categories to be listed in the table, e.g., ["Rojo", "Azul", "Verde"]
-  questionText: string; // e.g., "Completa la tabla de frecuencias contando cuántas veces aparece cada elemento."
-  icon?: string; // Optional emoji for the scenario
-  correctFrequencies: { [category: string]: number }; // For verification, e.g., {"Rojo": 2, "Azul": 1, "Verde": 1}
-  totalStars: number; // Total stars for completing this one scenario (usually 1 if it's one table to fill)
-}
-// --- END New Types for Organizing Data in Frequency Table G4 ---
-
-// --- START New Types for Creating Simple Bar Graph G4 ---
-export interface BarGraphCategoryDataG4 {
-  categoryName: string;
-  correctFrequency: number;
-  color?: string; // Predefined color for this bar in the solution
-}
-
-export interface CreateBarGraphChallengeG4 {
-  id: string;
-  title: string; // e.g., "Sabores de Helado Favoritos"
-  description: string; // e.g., "Usa la tabla para crear el gráfico de barras."
-  tableData: BarGraphCategoryDataG4[]; // The frequency table data
-  xAxisLabel: string; // e.g., "Sabor de Helado"
-  yAxisLabel: string; // e.g., "Cantidad de Votos"
-  maxYAxisValue?: number; // Optional: if not provided, calculate from data
-  yAxisStep?: number;     // Optional: if not provided, calculate
-  icon?: string;
-  totalStars: number;
-}
-// --- END New Types for Creating Simple Bar Graph G4 ---
-// --- END 4th Grade Specific Types ---
-
-
-// --- START 5th Grade Specific Types (Numeros) ---
-export interface DecimalAvanzadoChallenge {
-  value: number; // The decimal number involved
-  representationType: 'word_to_decimal' | 'decimal_to_word' | 'identify_place_value_decimal';
-  options?: string[]; // Options for MCQ type questions
-  correctAnswer: string; // Can be a string (for words) or a number string
-  placeToIdentify?: 'decimos' | 'centesimos' | 'milesimos'; // For place value identification
-  visual?: string; // e.g., a grid or number line image path
-}
-
-export interface CompararDecimalesChallenge {
-  decimalA: number;
-  decimalB: number;
-  correctSymbol: ComparisonSymbol;
-}
-
-export interface OrdenarDecimalesChallenge {
-  decimals: number[]; // Array of decimals to be ordered
-  sortOrder: 'asc' | 'desc'; // User needs to produce the correctly sorted array.
-  // Correct answer implicitly the sorted version of `decimals` based on `sortOrder`.
-}
-
-export interface RedondearDecimalesChallenge {
-  decimal: number;
-  placeToRound: 'entero' | 'decimo' | 'centesimo'; // Round to nearest whole, tenth, or hundredth
-  correctAnswer: number;
-}
-
-export interface FraccionCantidadChallenge {
-  fractionNum: number;
-  fractionDen: number;
-  wholeNumber: number;
-  correctAnswer: number;
-  context?: string; // Optional: "de X objetos"
-  visual?: 'dots' | 'bar'; // Optional visual aid
-}
-
-export interface PrimoCompuestoChallenge {
-  numberToCheck: number;
-  isPrime: boolean; // True if prime, false if composite
-  // Options will be "Primo" / "Compuesto"
-}
-
-export interface DivisibilidadChallenge {
-  numberToCheck: number;
-  divisor: 2 | 3 | 5 | 9 | 10; // Or other common divisibility rules for G5
-  isDivisible: boolean;
-  ruleExplanation?: string; // Optional: e.g., "Termina en 0 o 5."
-  // Options will be "Sí, es divisible" / "No, no es divisible"
-}
-
-export interface McdMcmChallenge {
-  numbers: number[]; // Typically two numbers
-  type: 'mcd' | 'mcm'; // Greatest Common Divisor or Least Common Multiple
-  correctAnswer: number;
-}
-
-export interface NumeroEnteroChallenge {
-  value1: number; // Can be positive or negative
-  value2?: number; // For comparison or operations
-  task: 'locate_on_line' | 'compare_integers' | 'sum_integers' | 'subtract_integers' | 'real_life_context';
-  contextQuestion?: string; // e.g., "Si la temperatura baja X grados desde Y grados..."
-  options?: (string | number)[];
-  correctAnswer: string | number;
-  numberLineRange?: [number, number]; // For locate_on_line task
-}
-// --- END 5th Grade Specific Types ---
-
-// --- START 5th Grade Specific Types (Operaciones) ---
-
-export interface OperarFraccionesHeterogeneasChallenge {
-  fractionA: FractionChallenge;
-  fractionB: FractionChallenge;
-  operation: '+' | '-';
-  correctResult: FractionChallenge; // The simplified result
-}
-
-export interface MultiplicarFraccionesChallenge {
-  factor1: FractionChallenge | number; // Can be a fraction or an integer
-  factor2: FractionChallenge | number;
-  correctResult: FractionChallenge; // The simplified result
-}
-
-export interface DividirFraccionesChallenge {
-  dividend: FractionChallenge | number;
-  divisor: FractionChallenge | number; // e.g. an integer or a unit fraction
-  correctResult: FractionChallenge; // The simplified result
-}
-
-export interface ColumnarOperationDecimalChallenge {
-  operands: number[]; // e.g., [12.34, 5.6]
-  operationType: 'addition' | 'subtraction';
-  correctResult: number;
-}
-
-export interface MultiplicarDecimalesChallenge {
-  factor1: number; // e.g., 1.23
-  factor2: number; // e.g., 4.5
-  correctResult: number;
-}
-
-export interface DividirDecimalesPorEnteroChallenge {
-  dividend: number; // e.g., 12.4
-  divisor: number; // e.g., 4 (must be an integer)
-  correctResult: number; // e.g., 3.1
-}
-
-export interface OperacionesCombinadasG5Challenge {
-  expression: string; // e.g., "(3 + 5) * 2"
-  correctAnswer: number;
-}
-
-export interface PotenciasChallenge {
-  base: number;
-  exponent: 2 | 3; // Square or Cube
-  correctAnswer: number;
-}
-// --- END 5th Grade Specific Types (Operaciones) ---
-
-// --- START 5th Grade Problemas Specific Types ---
-export interface MultiStepProblem {
-  id: string;
-  problemText: string;
-  steps: {
-    question: string;
-    correctAnswer: number;
-  }[];
-  finalQuestion: string;
-  finalAnswer: number;
-  icon?: string;
-}
-
-export interface ProportionProblem {
-  id: string;
-  a: number;
-  aLabel: string;
-  b: number;
-  bLabel: string;
-  c: number;
-  cLabel: string;
-  xLabel: string;
-  context: string;
-  icon?: string;
-}
-
-export interface RemainderProblem {
-  id: string;
-  dividend: number;
-  divisor: number;
-  context: string;
-  quotientLabel: string;
-  remainderLabel: string;
-  icon?: string;
-}
-
-export interface FinanceItem {
-  name: string;
-  price: number;
-  icon: string;
-}
-
-export interface FinanceChallengeG5 {
-  id: string;
-  initialMoney: number;
-  shoppingList: {
-    item: FinanceItem;
-    quantity: number;
-  }[];
-}
-// --- END 5th Grade Problemas Specific Types ---
-
-// --- START 5th Grade Medidas Specific Types ---
-export interface PerimeterPuzzleChallenge {
-  id: string;
-  shapeType: string; // e.g., 'Rectángulo', 'Forma en L'
-  vertices: [number, number][];
-  unit: 'cm' | 'm' | 'km';
-  context: string; // e.g., "Design the lion enclosure."
-  icon: string; // e.g., '🦁'
-}
-
-export interface AreaPuzzleChallenge {
-  id: string;
-  shapeType: string; // e.g., 'Rectángulo', 'Forma en L'
-  vertices: [number, number][];
-  unit: 'cm' | 'm' | 'km';
-  context: string; // e.g., "Calculate the area of the garden."
-  icon: string; // e.g., '🥕'
-}
-
-export interface AreaAdventureChallenge {
+// For PROBABILITY_WORD_PROBLEM
+export interface ProbabilityWordProblemScenario {
   id: string;
   prompt: string;
-  shapeType: 'rectangle' | 'triangle' | 'trapezoid';
-  dimensions: {
-    base?: number;
-    height?: number;
-    base1?: number; // For trapezoid
-    base2?: number; // For trapezoid
-    width?: number; // For rectangle
-  };
-  unit: string;
-  correctAnswer: number;
-}
-
-export interface VolumeVoyageChallenge {
-  id: string;
-  prompt: string;
-  shapeType: 'cubo' | 'prismaRectangular';
-  dimensions: { length: number; width: number; height: number };
-  unit: string;
-  icon: string;
-  correctAnswer: number;
-}
-
-// New Interface for Measurement Data Explorer
-export interface MeasurementDataExplorerChallengeG5 {
-  id: string;
-  mode: 'create' | 'interpret';
-  title: string;
-  data: number[];
-  unit: string;
-  question: string;
-  correctAnswer: number;
-  dotIcon?: string;
-  icon?: string;
-  lineRange: [number, number]; // min and max for the number line
-  step: number; // step for the number line ticks
-}
-// --- END 5th Grade Medidas Specific Types ---
-
-
-// --- START 5th Grade Geometria Specific Types ---
-export interface PolygonSortingChallengeG5 {
-  id: string;
-  VisualComponent: React.FC<any>;
-  visualProps?: any;
-  isRegular: boolean;
-  isConvex: boolean;
-  name: string; // e.g., "Pentágono Regular"
+  context: string;
+  items: {
+    type: string;
+    color: string;
+    label: string;
+    count: number;
+  }[];
+  targetItem: string;
+  correctNumerator: number;
+  correctDenominator: number;
+  simplifiedFraction?: { numerator: number; denominator: number };
   hint: string;
+  feedback: string;
+  animation?: 'draw' | 'pick';
 }
 
-export type TriangleAngleChallengeG5 = {
-  type: 'triangle_angle';
-  knownAngles: [number, number];
-};
-
-export type QuadPropertyChallengeG5 = {
-  type: 'quad_property';
-  description: string;
-  correctShapeId: QuadrilateralTypeId;
-  options: QuadrilateralTypeId[];
-};
-
-export type TriangleQuadExplorerChallenge = TriangleAngleChallengeG5 | QuadPropertyChallengeG5;
-
-export interface Shape3DCounterChallengeG5 {
-  shapeId: GeometricBodyTypeId;
-  shapeName: string;
-  VisualComponent: React.FC<any>; // Component that takes click handlers
-  correctCounts: {
-    faces: number;
-    edges: number;
-    vertices: number;
+export interface ProbabilityWordProblemExercise extends Exercise {
+  type: 'probability-word-problem';
+  componentType: ExerciseComponentType.PROBABILITY_WORD_PROBLEM;
+  data: {
+    scenarios: ProbabilityWordProblemScenario[];
   };
 }
-
-// For NETS_OF_3D_SHAPES_G5
-export type NetConstructionPieceType = 'square' | 'rectangle_a' | 'rectangle_b';
-
-export interface NetConstructionChallenge {
-  type: 'construct';
-  targetShape: 'cube' | 'rectangular_prism';
-  pieces: { type: NetConstructionPieceType, count: number }[];
-  gridSize: { rows: number; cols: number };
-  // We won't predefine layouts, we'll check validity algorithmically
-  validLayouts: number[][][]; 
-  feedback: {
-    invalidCount: string;
-    invalidShape: string;
-    correct: string;
-  };
-}
-
-export interface NetMatchingChallenge {
-  type: 'match';
-  targetShapeId: GeometricBodyTypeId;
-  TargetShapeComponent: React.FC<any>;
-  netOptions: { id: string, NetVisualComponent: React.FC<any>, isCorrect: boolean }[];
-}
-
-export type NetsOf3DShapesChallenge = NetConstructionChallenge | NetMatchingChallenge;
-// --- END 5th Grade Geometria Specific Types ---

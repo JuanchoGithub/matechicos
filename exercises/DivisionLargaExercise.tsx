@@ -70,16 +70,16 @@ const InputDigitBox: React.FC<{
     onClick?: () => void; 
     className?: string;
     placeholder?: string;
-    isQuotient?: boolean;
-}> = ({ value, isActive, isError, onClick, className = "", placeholder="_", isQuotient = false }) => {
-  let boxSpecificClass = isQuotient ? '!border-transparent !bg-transparent' : 'border-slate-300 bg-white';
+}> = ({ value, isActive, isError, onClick, className = "", placeholder="_" }) => {
+  // Use consistent styling for all input boxes (remove isQuotient special treatment)
+  let boxSpecificClass = 'border-slate-300 bg-white';
   if (isActive) boxSpecificClass = 'border-sky-500 ring-2 ring-sky-300 bg-sky-50';
-  else if (isError) boxSpecificClass = `border-red-400 ${isQuotient ? 'bg-red-50' : 'bg-red-100' }`;
+  else if (isError) boxSpecificClass = 'border-red-400 bg-red-100';
   
-  const displayValue = value || (isQuotient && !placeholder && !isActive ? '\u00A0' : placeholder);
+  const displayValue = value || placeholder;
   const valueClasses = value 
     ? (isError && !isActive ? 'text-red-600' : 'text-slate-800') 
-    : (isQuotient && !placeholder && !isActive ? 'text-transparent' : 'text-slate-500 font-medium');
+    : 'text-slate-500 font-medium';
 
   return (
     <div
@@ -511,7 +511,7 @@ export const DivisionLargaExercise: React.FC<DivisionLargaExerciseProps> = ({
         const dividendStrPadded = dividend.toString().padStart(finalProblemWidthChars, ' ');
         const divisorStr = divisor.toString();
         
-        let quotientDisplayRow: JSX.Element[] = [];
+        let quotientDisplayRow: React.ReactNode[] = [];
         for(let visualCol = 0; visualCol < finalProblemWidthChars; visualCol++){
             const dividendColIndex = finalProblemWidthChars - dividendStrLength + visualCol; 
             let actualQIdxMapped: number | null = null;
@@ -545,7 +545,6 @@ export const DivisionLargaExercise: React.FC<DivisionLargaExerciseProps> = ({
                         }
                     }}
                     placeholder={placeholderForQuotient}
-                    isQuotient={true}
                 />)
                 :
                 (<StaticDigitBox

@@ -1,9 +1,5 @@
-
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { NumericKeypad } from '../components/NumericKeypad';
-import { AvatarData, Exercise as ExerciseType, ExerciseScaffoldApi, Scenario } from '../types'; 
-import { Icons } from '../components/icons';
+import { Exercise as ExerciseType, ExerciseScaffoldApi, Scenario } from '../types'; 
 import { scenarioCollections, ScenarioSetId, generateProblemNumbers } from './problemScenarios/index'; 
 import { MultiStepProblemSolver, GeneratedProblem, MultiStepProblemSolverConfig } from './MultiStepProblemSolver';
 
@@ -29,6 +25,10 @@ export const ProblemasMatematicosGuiadosExercise: React.FC<ProblemasMatematicosG
   const [currentProblemInstance, setCurrentProblemInstance] = useState<GeneratedProblem | null>(null);
   const previousScenarioId = useRef<string | null>(null);
   const previousAdvanceSignalRef = useRef(scaffoldApi.advanceToNextChallengeSignal);
+  // Add a ref to track if we're loading a problem to prevent multiple simultaneous loads
+  const isLoadingProblemRef = useRef(false);
+  // Add a ref to track if the component is mounted
+  const isMountedRef = useRef(true);
 
   const { 
     numberRange = [10, 999], 
@@ -48,9 +48,15 @@ export const ProblemasMatematicosGuiadosExercise: React.FC<ProblemasMatematicosG
     : ['+', '-'];
 
   const loadNextProblem = useCallback(() => {
+    // Prevent multiple simultaneous problem loads
+    if (isLoadingProblemRef.current || !isMountedRef.current) return;
+    
+    isLoadingProblemRef.current = true;
+
     const activeScenarios = (scenarioCollections[scenarioSetId as ScenarioSetId] || scenarioCollections[ScenarioSetId.GENERAL]) as Scenario[];
     if (activeScenarios.length === 0) {
         scaffoldApi.showFeedback({type: 'congrats', message: "No hay más problemas."});
+        isLoadingProblemRef.current = false;
         return;
     }
 
@@ -76,20 +82,37 @@ export const ProblemasMatematicosGuiadosExercise: React.FC<ProblemasMatematicosG
     if(allowDecimal) correctResult = parseFloat(correctResult.toFixed(2));
 
     setCurrentProblemInstance({ ...selectedScenario, num1, num2, correctResult });
-    scaffoldApi.showFeedback(null); 
+    scaffoldApi.showFeedback(null);
+    
+    // Reset loading flag after a short delay to prevent rapid consecutive loads
+    setTimeout(() => {
+      isLoadingProblemRef.current = false;
+    }, 500);
   }, [numberRange, scenarioSetId, scaffoldApi, allowDecimal]);
 
+  // Set mounted flag on component mount and clear it on unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Initial load of a problem when the component mounts
   useEffect(() => {
     loadNextProblem(); 
-  }, [exercise.id, allowDecimal, loadNextProblem]);
+  }, [exercise.id]); // Only depend on exercise.id to prevent unnecessary reloads
 
+  // Handle advances to next challenge
   useEffect(() => {
-    if (scaffoldApi.advanceToNextChallengeSignal > (previousAdvanceSignalRef.current ?? -1) ) {
-        loadNextProblem();
+    const currentSignal = scaffoldApi.advanceToNextChallengeSignal;
+    const previousSignal = previousAdvanceSignalRef.current ?? -1;
+    
+    if (currentSignal > previousSignal) {
+      loadNextProblem();
+      previousAdvanceSignalRef.current = currentSignal;
     }
-    previousAdvanceSignalRef.current = scaffoldApi.advanceToNextChallengeSignal;
   }, [scaffoldApi.advanceToNextChallengeSignal, loadNextProblem]);
-
 
   if (!currentProblemInstance) {
     return <div className="p-4 text-slate-700">Cargando problema...</div>;

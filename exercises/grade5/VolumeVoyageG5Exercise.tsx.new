@@ -44,65 +44,26 @@ const ComoEraContent: React.FC = () => (
     </>
 );
 
-// --- Prism3D SVG Component ---
-const Prism3D: React.FC<{
+const Prism3D: React.FC<{ 
     dimensions: { l: number; w: number; h: number },
     unit: string,
     animate?: boolean
-}> = ({ dimensions, unit, animate }) => {
-    // Drawing area
-    const svgWidth = 360;
-    const svgHeight = 260;
-    const margin = 24;
+}> = React.memo(({ dimensions, unit, animate = false }) => {
     const { l, w, h } = dimensions;
-    // Find the max possible extent in x/y for any orientation
-    // Isometric projection: dx = scale*l, dy = scale*w*0.5, dz = -scale*h
-    // The furthest right: x0 + scale*l + scale*w*0.5
-    // The highest: y0 - scale*w*0.5 - scale*h
-    // We'll solve for scale so that the shape fits within svgWidth/svgHeight with margin
-    const maxL = Math.max(l, 1);
-    const maxW = Math.max(w, 1);
-    const maxH = Math.max(h, 1);
-    // Calculate scale so that the shape fits
-    const scaleX = (svgWidth - 2 * margin) / (maxL + maxW * 0.5);
-    const scaleY = (svgHeight - 2 * margin) / (maxH + maxW * 0.5);
-    const scale = Math.min(scaleX, scaleY);
-    // Base point
-    const x0 = margin;
-    const y0 = svgHeight - margin;
-    const dx = scale * l;
-    const dy = scale * w * 0.5;
-    const dz = -scale * h;
-    // 8 corners of the prism
-    const A = [x0, y0];
-    const B = [x0 + dx, y0];
-    const C = [x0 + dx + dy, y0 - dy];
-    const D = [x0 + dy, y0 - dy];
-    const E = [A[0], A[1] + dz];
-    const F = [B[0], B[1] + dz];
-    const G = [C[0], C[1] + dz];
-    const H = [D[0], D[1] + dz];
-    const pts = (arr: number[][]) => arr.map(p => p.join(",")).join(" ");
+    if (l === 0 || w === 0 || h === 0) return null;
+    
     return (
-        <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="mx-auto">
-            {/* Draw faces in back-to-front order for 3D effect */}
-            {/* Top face */}
-            <polygon points={pts([E, F, G, H])} fill="#dbeafe" stroke="#2563eb" strokeWidth="2" opacity="0.7" />
-            {/* Side face */}
-            <polygon points={pts([B, C, G, F])} fill="#93c5fd" stroke="#2563eb" strokeWidth="2" opacity="0.8" />
-            {/* Front face */}
-            <polygon points={pts([A, B, F, E])} fill="#60a5fa" stroke="#2563eb" strokeWidth="2" opacity="0.9" />
-            {/* Left face */}
-            <polygon points={pts([A, D, H, E])} fill="#3b82f6" stroke="#2563eb" strokeWidth="2" opacity="0.8" />
-            {/* Top outline for clarity */}
-            <polyline points={pts([E, F, G, H, E])} fill="none" stroke="#1e40af" strokeWidth="2" />
-            {/* Dimension labels, repositioned for new area */}
-            <text x={x0 + dx/2} y={y0 + 24} fontSize="16" fill="#1e293b" textAnchor="middle">Largo: {l} {unit}</text>
-            <text x={x0 - 10} y={y0 - dy/2} fontSize="16" fill="#1e293b" textAnchor="end">Ancho: {w} {unit}</text>
-            <text x={x0 - 2} y={y0 + dz/2} fontSize="16" fill="#1e293b" textAnchor="end" transform={`rotate(-90,${x0 - 2},${y0 + dz/2})`}>Alto: {h} {unit}</text>
-        </svg>
+        <div className="w-full h-full max-w-md max-h-80">
+            <CubeStack 
+                length={l} 
+                width={w} 
+                height={h} 
+                unit={unit} 
+                animate={animate}
+            />
+        </div>
     );
-};
+});
 
 // --- Main Component ---
 export const VolumeVoyageG5Exercise: React.FC<VolumeVoyageG5ExerciseProps> = ({ exercise, scaffoldApi, registerKeypadHandler }) => {

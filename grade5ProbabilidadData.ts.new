@@ -1,0 +1,181 @@
+import { Exercise, ExerciseComponentType, LikelihoodEventScenario } from './types';
+
+// Likelihood sorting game scenarios
+const likelihoodSortingScenarios: LikelihoodEventScenario[] = [
+  {
+    id: 'weather-rain',
+    eventText: 'Lloverá esta tarde.',
+    correctLikelihood: 'likely',
+    emoji: '🌧️',
+    feedbackMessage: '¡Correcto! Que llueva esta tarde es posible pero no seguro, así que es probable.'
+  },
+  {
+    id: 'coin-both-sides',
+    eventText: 'Una moneda caerá mostrando cara y cruz al mismo tiempo.',
+    correctLikelihood: 'impossible',
+    emoji: '🪙',
+    feedbackMessage: '¡Correcto! Una moneda no puede mostrar ambos lados a la vez, por lo que es imposible.'
+  },
+  {
+    id: 'sunrise-tomorrow',
+    eventText: 'El sol saldrá mañana.',
+    correctLikelihood: 'certain',
+    emoji: '🌞',
+    feedbackMessage: '¡Correcto! El sol saldrá mañana sin importar si está nublado o no, es seguro.'
+  },
+  {
+    id: 'snow-summer',
+    eventText: 'Nevará en pleno verano en la ciudad.',
+    correctLikelihood: 'unlikely',
+    emoji: '❄️',
+    feedbackMessage: '¡Correcto! Aunque no es imposible, es muy poco probable que nieve durante el verano en la mayoría de las ciudades.'
+  },
+  {
+    id: 'dice-seven',
+    eventText: 'Al lanzar un dado de 6 caras, saldrá un 7.',
+    correctLikelihood: 'impossible',
+    emoji: '🎲',
+    feedbackMessage: '¡Correcto! Un dado de 6 caras solo tiene números del 1 al 6, por lo que es imposible obtener un 7.'
+  },
+  {
+    id: 'birthday-day',
+    eventText: 'Tu cumpleaños caerá en algún día de la semana.',
+    correctLikelihood: 'certain',
+    emoji: '🎂',
+    feedbackMessage: '¡Correcto! Todos los días pertenecen a algún día de la semana, así que es seguro que tu cumpleaños caerá en uno.'
+  },
+  {
+    id: 'rainbow-rain',
+    eventText: 'Después de la lluvia aparecerá un arcoíris.',
+    correctLikelihood: 'likely',
+    emoji: '🌈',
+    feedbackMessage: '¡Correcto! Cuando hay lluvia y luego sale el sol, es probable (aunque no seguro) que se forme un arcoíris.'
+  },
+  {
+    id: 'pencil-break',
+    eventText: 'Si presionas muy fuerte un lápiz, se romperá la punta.',
+    correctLikelihood: 'likely',
+    emoji: '✏️',
+    feedbackMessage: '¡Correcto! Aunque depende de la fuerza aplicada, es probable que la punta se rompa si presionas demasiado.'
+  },
+  {
+    id: 'alphabet-backward',
+    eventText: 'Podrás recitar el alfabeto al revés sin equivocarte en el primer intento.',
+    correctLikelihood: 'unlikely',
+    emoji: '🔤',
+    feedbackMessage: '¡Correcto! Recitar el alfabeto al revés es difícil y requiere práctica, así que es poco probable acertar a la primera.'
+  },
+  {
+    id: 'plant-grow-overnight',
+    eventText: 'Una semilla plantada hoy se convertirá en un árbol mañana.',
+    correctLikelihood: 'impossible',
+    emoji: '🌱',
+    feedbackMessage: '¡Correcto! Los árboles tardan años en crecer, así que es imposible que ocurra en un día.'
+  },
+];
+
+export const fifthGradeProbabilidadExercises: Exercise[] = [
+  {
+    id: 'g5-s6-e1',
+    title: 'Juego de Clasificación por Probabilidad',
+    question: 'Clasifica los eventos según su probabilidad de ocurrencia',
+    componentType: ExerciseComponentType.LIKELIHOOD_SORTING_GAME,
+    description: 'En este ejercicio deberás clasificar diferentes eventos según su probabilidad: seguro, probable, poco probable o imposible. ¡Conviértete en un meteorólogo y predice correctamente!',
+    iconName: 'ProbabilityIcon',
+    isLocked: false,
+    data: likelihoodSortingScenarios
+  },
+  // Adding spinner probability exercises to the main exported array
+  {
+    id: 'g5-prob-2',
+    title: 'Desafío de Ruleta',
+    question: '¿Cuál es la probabilidad de que caiga en rojo?',
+    description: 'Una ruleta tiene 4 secciones iguales: rojo, azul, verde, amarillo. ¿Cuál es la probabilidad de que caiga en rojo?',
+    componentType: ExerciseComponentType.SPINNER_PROBABILITY,
+    iconName: 'ProbabilityIcon',
+    isLocked: false,
+    data: {
+      sections: [
+        { color: 'red', label: 'Rojo' },
+        { color: 'blue', label: 'Azul' },
+        { color: 'green', label: 'Verde' },
+        { color: 'yellow', label: 'Amarillo' },
+      ],
+      targetSection: 'Rojo',
+      correctNumerator: 1,
+      correctDenominator: 4
+    }
+  },
+  {
+    id: 'g5-prob-3',
+    title: 'Desafío de Ruleta 2',
+    question: '¿Cuál es la probabilidad de que caiga en verde?',
+    description: 'Una ruleta tiene 6 secciones iguales: 3 azules, 2 verdes, 1 roja. ¿Cuál es la probabilidad de que caiga en verde?',
+    componentType: ExerciseComponentType.SPINNER_PROBABILITY,
+    iconName: 'ProbabilityIcon',
+    isLocked: false,
+    data: {
+      sections: [
+        { color: 'blue', label: 'Azul' },
+        { color: 'blue', label: 'Azul' },
+        { color: 'blue', label: 'Azul' },
+        { color: 'green', label: 'Verde' },
+        { color: 'green', label: 'Verde' },
+        { color: 'red', label: 'Rojo' },
+      ],
+      targetSection: 'Verde',
+      correctNumerator: 2,
+      correctDenominator: 6
+    }
+  },
+  {
+    id: 'g5-prob-4',
+    title: 'Desafío de Ruleta en el Carnaval',
+    question: '¿Cuál es la probabilidad de que caiga en azul?',
+    description: 'En un juego de carnaval, una ruleta tiene 8 secciones: 4 rojas, 2 azules y 2 verdes. ¿Cuál es la probabilidad de que caiga en azul?',
+    componentType: ExerciseComponentType.SPINNER_PROBABILITY,
+    iconName: 'ProbabilityIcon',
+    isLocked: false,
+    data: {
+      sections: [
+        { color: 'red', label: 'Rojo' },
+        { color: 'red', label: 'Rojo' },
+        { color: 'blue', label: 'Azul' },
+        { color: 'green', label: 'Verde' },
+        { color: 'red', label: 'Rojo' },
+        { color: 'blue', label: 'Azul' },
+        { color: 'green', label: 'Verde' },
+        { color: 'red', label: 'Rojo' },
+      ],
+      targetSection: 'Azul',
+      correctNumerator: 2,
+      correctDenominator: 8
+    }
+  },
+  {
+    id: 'g5-prob-5',
+    title: 'Super Desafío de Ruleta',
+    question: '¿Cuál es la probabilidad de que caiga en morado?',
+    description: 'Una ruleta tiene 10 secciones: 5 amarillas, 3 moradas, 1 naranja y 1 café. ¿Cuál es la probabilidad de que caiga en morado?',
+    componentType: ExerciseComponentType.SPINNER_PROBABILITY,
+    iconName: 'ProbabilityIcon',
+    isLocked: false,
+    data: {
+      sections: [
+        { color: 'yellow', label: 'Amarillo' },
+        { color: 'purple', label: 'Morado' },
+        { color: 'yellow', label: 'Amarillo' },
+        { color: 'purple', label: 'Morado' },
+        { color: 'yellow', label: 'Amarillo' },
+        { color: 'orange', label: 'Naranja' },
+        { color: 'yellow', label: 'Amarillo' },
+        { color: 'purple', label: 'Morado' },
+        { color: 'yellow', label: 'Amarillo' },
+        { color: 'brown', label: 'Café' },
+      ],
+      targetSection: 'Morado',
+      correctNumerator: 3,
+      correctDenominator: 10
+    }
+  }
+];

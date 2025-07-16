@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { AvatarData, IconName, HeartStatus, ExerciseScaffoldApi } from '../types';
+import { AvatarData, HeartStatus, ExerciseScaffoldApi } from '../types';
 import { Icons, getIcon, AllIconNames } from './icons';
 
 const INITIAL_LIVES = 3;
@@ -177,25 +177,31 @@ export const ExerciseScaffold: React.FC<ExerciseScaffoldProps> = ({
           )}
         </main>
 
-        <aside className="w-1/3 max-w-xs bg-teal-500 p-3 flex flex-col items-center space-y-3 shadow-lg flex-shrink-0 relative z-[2]"> {/* aside with z-2 */}
-          <div className="flex flex-col items-center text-white mt-2">
+        <aside className="w-1/3 max-w-xs bg-teal-500 p-2 flex flex-col shadow-lg flex-shrink-0 relative z-[2] h-full"> {/* aside with z-2, responsive height */}
+          <div className="flex flex-col items-center text-white mb-1">
              {(() => { 
                 const AvatarIcon = getIcon(currentAvatar.iconName as AllIconNames);
-                return AvatarIcon && <AvatarIcon className={`w-16 h-16 mb-1 ${currentAvatar.color.replace('text-','fill-')}`} />;
+                return AvatarIcon && <AvatarIcon className={`w-10 h-10 sm:w-14 sm:h-14 mb-0.5 ${currentAvatar.color.replace('text-','fill-')}`} />;
             })()}
-            <span className="font-semibold">{currentAvatar.name || 'Usuario'}</span>
+            <span className="font-semibold text-xs sm:text-sm">{currentAvatar.name || 'Usuario'}</span>
           </div>
-          {keypadComponent}
           
-          <div className="flex items-center justify-center space-x-1 mt-4 pt-3 border-t border-teal-400/50 w-full">
-            {Array.from({ length: INITIAL_LIVES }).map((_, i) => {
-              let heartStatus: HeartStatus = 'empty';
-              if (losingLifeAtIndex === i) heartStatus = 'losing';
-              else if (i < livesRemaining) heartStatus = 'filled';
-              return (
-                <Icons.HeartIcon key={`life-${i}`} className="w-7 h-7 sm:w-8 sm:h-8" status={heartStatus} />
-              );
-            })}
+          {/* Keypad container with automatic height adjustment */}
+          <div className="flex-grow flex flex-col justify-between min-h-0">
+            <div className="flex-grow">
+              {keypadComponent}
+            </div>
+            
+            <div className="flex items-center justify-center space-x-0.5 mt-1 pt-1 border-t border-teal-400/50 w-full">
+              {Array.from({ length: INITIAL_LIVES }).map((_, i) => {
+                let heartStatus: HeartStatus = 'empty';
+                if (losingLifeAtIndex === i) heartStatus = 'losing';
+                else if (i < livesRemaining) heartStatus = 'filled';
+                return (
+                  <Icons.HeartIcon key={`life-${i}`} className="w-5 h-5 sm:w-6 sm:h-6" status={heartStatus} />
+                );
+              })}
+            </div>
           </div>
         </aside>
       </div>

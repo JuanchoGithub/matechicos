@@ -1,0 +1,43 @@
+--- ExperimentalProbabilitySimulatorExercise.css2025-07-16
++++ ExperimentalProbabilitySimulatorExercise.css2025-07-16
+@@ -3,7 +3,10 @@
+   flex-direction: column;
+   align-items: center;
+   width: 100%;
+-  max-width: 1200px;
++  max-width: 1200px; 
++  overflow-y: auto;
++  max-height: 70vh;
++  padding-right: 10px;
+   margin: 0 auto;
+   font-family: 'Comic Sans MS', cursive, sans-serif;
+ }
+@@ -25,6 +28,8 @@
+   flex-wrap: wrap;
+   justify-content: space-around;
+   width: 100%;
++  overflow-y: visible;
++  min-height: 500px;
+   gap: 20px;
+ }
+ 
+@@ -37,6 +42,9 @@
+   flex: 1;
+   display: flex;
+   flex-direction: column;
++  max-height: 60vh;
++  overflow-y: auto;
++  position: sticky;
+   align-items: center;
+ }
+ 
+@@ -207,6 +215,9 @@
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   min-width: 300px;
+   flex: 1;
++  max-height: 60vh;
++  overflow-y: auto;
++  position: relative;
+ }
+ 
+ .simulator-results-container {

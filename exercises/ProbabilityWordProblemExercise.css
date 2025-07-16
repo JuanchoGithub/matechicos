@@ -1,0 +1,312 @@
+.probability-word-problem-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.probability-word-problem-header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4a4a4a;
+}
+
+.probability-word-problem-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.probability-word-problem-scene {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.probability-word-problem-container-visual {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.probability-word-problem-bag {
+  width: 180px;
+  height: 220px;
+  background-color: #8d6e63;
+  border-radius: 0 0 90px 90px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.probability-word-problem-bag::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  width: 100%;
+  height: 40px;
+  background-color: #6d4c41;
+  border-radius: 5px;
+}
+
+.probability-word-problem-box {
+  width: 200px;
+  height: 120px;
+  background-color: #b3895e;
+  border-radius: 10px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.probability-word-problem-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 20px;
+  background-color: #8d6e63;
+}
+
+.probability-word-problem-items-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  height: 70%;
+  gap: 10px;
+}
+
+.probability-word-problem-item {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.probability-word-problem-item.marble {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.3));
+}
+
+.probability-word-problem-item.candy {
+  border-radius: 5px;
+  transform: rotate(45deg);
+}
+
+.probability-word-problem-item.selected {
+  transform: scale(1.2);
+  opacity: 0.7;
+}
+
+.probability-word-problem-item.animated {
+  animation: drawItem 1s forwards;
+}
+
+@keyframes drawItem {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(0, -100px) scale(1.3);
+  }
+  100% {
+    transform: translate(150px, -50px) scale(1.2);
+  }
+}
+
+.probability-word-problem-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.probability-word-problem-fraction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.probability-word-problem-fraction-field {
+  width: 60px;
+  height: 40px;
+  font-size: 24px;
+  text-align: center;
+  border: 2px solid #4a90e2;
+  border-radius: 5px;
+  margin: 5px 0;
+  cursor: pointer;
+}
+
+.probability-word-problem-fraction-field.active {
+  background-color: #e3f2fd;
+  border-color: #2962ff;
+}
+
+.probability-word-problem-fraction-line {
+  width: 70px;
+  height: 3px;
+  background-color: #4a4a4a;
+}
+
+.probability-word-problem-check-button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+.probability-word-problem-check-button:hover {
+  background-color: #388e3c;
+}
+
+.probability-word-problem-check-button:disabled {
+  background-color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+.probability-word-problem-feedback {
+  width: 100%;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 16px;
+  animation: fadeIn 0.5s;
+}
+
+.probability-word-problem-feedback.success {
+  background-color: #e8f5e9;
+  color: #388e3c;
+  border: 1px solid #a5d6a7;
+}
+
+.probability-word-problem-feedback.error {
+  background-color: #ffebee;
+  color: #d32f2f;
+  border: 1px solid #ef9a9a;
+}
+
+.probability-word-problem-hint {
+  font-size: 14px;
+  color: #7b7b7b;
+  margin: 10px 0;
+  font-style: italic;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.probability-word-problem-hint-content {
+  background-color: #fff9c4;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.probability-word-problem-treasure {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;
+  height: 60px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 75"><rect x="10" y="25" width="80" height="50" rx="5" fill="%23CD9B1D" /><rect x="15" y="30" width="70" height="40" rx="3" fill="%23FFD700" /><rect x="35" y="10" width="30" height="15" fill="%23CD9B1D" /><rect x="30" y="25" width="40" height="5" fill="%23CD9B1D" /></svg>');
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.probability-word-problem-treasure.visible {
+  opacity: 1;
+  animation: bounceIn 0.5s;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.probability-word-problem-next-button {
+  padding: 10px 20px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+.probability-word-problem-next-button:hover {
+  background-color: #1976d2;
+}
+
+.probability-word-problem-clue {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff3e0;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  color: #e65100;
+  animation: fadeIn 0.5s;
+}

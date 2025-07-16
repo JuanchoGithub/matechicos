@@ -1,0 +1,288 @@
+/* CoinDiceProbabilityExercise.css */
+.coin-dice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.experiment-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  width: 100%;
+  height: 250px;
+  background-color: #f0f8ff;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.coin {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #FFD700, #FFC107);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.coin-side {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  backface-visibility: hidden;
+  border: 4px solid #e6c200;
+}
+
+.coin-heads {
+  background: linear-gradient(145deg, #FFD700, #FFC107);
+  transform: rotateY(0deg);
+}
+
+.coin-tails {
+  background: linear-gradient(145deg, #FFC107, #FFD700);
+  transform: rotateY(180deg);
+}
+
+.dice {
+  width: 100px;
+  height: 100px;
+  transform-style: preserve-3d;
+  transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+}
+
+.dice-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  border: 2px solid #333;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  gap: 2px;
+  align-items: center;
+  justify-items: center;
+  border-radius: 15%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dice-dot {
+  width: 15px;
+  height: 15px;
+  background-color: #333;
+  border-radius: 50%;
+}
+
+.dice-face-1 { transform: rotateY(0deg) translateZ(50px); }
+.dice-face-2 { transform: rotateY(90deg) translateZ(50px); }
+.dice-face-3 { transform: rotateX(90deg) translateZ(50px); }
+.dice-face-4 { transform: rotateX(-90deg) translateZ(50px); }
+.dice-face-5 { transform: rotateY(-90deg) translateZ(50px); }
+.dice-face-6 { transform: rotateY(180deg) translateZ(50px); }
+
+.action-button {
+  background: linear-gradient(145deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1.2rem;
+  border-radius: 30px;
+  cursor: pointer;
+  margin: 15px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.input-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.fraction-input {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.fraction-field {
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+  text-align: center;
+  border: 2px solid #3498db;
+  border-radius: 8px;
+  margin: 0 5px;
+}
+
+.fraction-field:focus {
+  outline: none;
+  border-color: #2980b9;
+  box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
+}
+
+.fraction-divider {
+  width: 60px;
+  height: 4px;
+  background-color: #333;
+  margin: 5px 0;
+}
+
+.feedback-message {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  text-align: center;
+  max-width: 90%;
+  transition: all 0.3s ease;
+}
+
+.feedback-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.feedback-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.highlight {
+  animation: highlight-pulse 2s infinite;
+}
+
+@keyframes highlight-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.prize-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  z-index: 10;
+}
+
+.prize {
+  font-size: 2rem;
+  color: #155724;
+  text-align: center;
+  animation: prize-bounce 1s ease-in-out;
+}
+
+@keyframes prize-bounce {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.help-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 80%;
+  max-height: 80%;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-close {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.combined-experiment {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .combined-experiment {
+    flex-direction: column;
+  }
+  
+  .coin, .dice {
+    margin-bottom: 20px;
+  }
+}

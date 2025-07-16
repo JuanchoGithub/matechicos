@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { NumericKeypad } from '../../components/NumericKeypad';
 import { Exercise as ExerciseType, ExerciseScaffoldApi, MeasurementDataExplorerChallengeG5 } from '../../types';
 import { Icons } from '../../components/icons';
 import { shuffleArray } from '../../utils';
@@ -25,7 +24,6 @@ export const MeasurementDataExplorerG5Exercise: React.FC<MeasurementDataExplorer
   const [phase, setPhase] = useState<'plotting' | 'answering'>('plotting');
   const [userPlot, setUserPlot] = useState<Map<number, number>>(new Map());
   const [userInput, setUserInput] = useState('');
-  const [isPlotCorrect, setIsPlotCorrect] = useState<boolean | null>(null);
 
   const { challenges = [] } = exercise.data || {};
   const { showFeedback, onAttempt, advanceToNextChallengeSignal } = scaffoldApi;
@@ -55,7 +53,6 @@ export const MeasurementDataExplorerG5Exercise: React.FC<MeasurementDataExplorer
       // Reset state for the new challenge
       setPhase(nextChallenge.mode === 'create' ? 'plotting' : 'answering');
       setUserPlot(nextChallenge.mode === 'interpret' ? getCorrectPlotMap(nextChallenge.data) : new Map());
-      setIsPlotCorrect(nextChallenge.mode === 'interpret' ? true : null);
       setUserInput('');
       showFeedback(null);
 
@@ -106,8 +103,7 @@ export const MeasurementDataExplorerG5Exercise: React.FC<MeasurementDataExplorer
         }
     }
 
-
-    setIsPlotCorrect(plotsMatch);
+    // Check if plot is correct
     if (plotsMatch) {
       showFeedback({ type: 'correct', message: '¡Gráfico correcto! Ahora responde la pregunta.' });
       setTimeout(() => {

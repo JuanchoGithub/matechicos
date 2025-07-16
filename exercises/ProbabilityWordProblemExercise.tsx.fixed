@@ -1,0 +1,335 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { NumericKeypad } from '../components/NumericKeypad';
+import { ProbabilityWordProblemExercise as ProbabilityWordProblemExerciseType, ExerciseScaffoldApi } from '../types';
+import './ProbabilityWordProblemExercise.css';
+
+interface ProbabilityWordProblemExerciseProps {
+  exercise: ProbabilityWordProblemExerciseType | any;
+  api?: ExerciseScaffoldApi;
+  scaffoldApi?: ExerciseScaffoldApi;
+  setCustomKeypadContent?: (keypadNode: React.ReactNode | null) => void;
+  registerKeypadHandler?: (handler: (key: string) => void | null) => void;
+  gradeLevel?: number;
+}
+
+const ProbabilityWordProblemExercise: React.FC<ProbabilityWordProblemExerciseProps> = ({
+  exercise,
+  api,
+  scaffoldApi,
+  setCustomKeypadContent
+}) => {
+  // Use scaffoldApi if provided, otherwise fall back to api
+  const activeApi = scaffoldApi || api;
+
+  // Create a dummy API if neither is provided
+  const safeApi = activeApi || {
+    onAttempt: () => {},
+    advanceToNextChallengeSignal: 0,
+    showFeedback: () => {}
+  };
+
+  // Get scenarios from exercise data
+  const scenarios = exercise.data?.scenarios || [];
+  const [scenarioIndex, setScenarioIndex] = useState(() => Math.floor(Math.random() * scenarios.length));
+  const scenario = scenarios[scenarioIndex];
+
+  // State variables
+  const [activeField, setActiveField] = useState<'numerator' | 'denominator'>('numerator');
+  const [numerator, setNumerator] = useState('');
+  const [denominator, setDenominator] = useState('');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackType, setFeedbackType] = useState<'success' | 'error' | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [revealedTreasure, setRevealedTreasure] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [clue, setClue] = useState<string | null>(null);
+
+  // Reset states when scenario changes
+  useEffect(() => {
+    setNumerator('');
+    setDenominator('');
+    setFeedbackMessage('');
+    setShowFeedback(false);
+    setShowHint(false);
+    setRevealedTreasure(false);
+    setSelectedItem(null);
+    setClue(null);
+    setActiveField('numerator');
+  }, [scenario]);
+
+  // Handle keypad key press
+  const handleKeyPress = (key: string) => {
+    if (isAnimating || showFeedback) return;
+
+    if (activeField === 'numerator' && numerator.length < 2) {
+      setNumerator(prev => prev + key);
+    } else if (activeField === 'denominator' && denominator.length < 2) {
+      setDenominator(prev => prev + key);
+    }
+  };
+
+  // Handle backspace button press
+  const handleBackspace = () => {
+    if (isAnimating || showFeedback) return;
+
+    if (activeField === 'numerator' && numerator.length > 0) {
+      setNumerator(prev => prev.slice(0, -1));
+    } else if (activeField === 'denominator' && denominator.length > 0) {
+      setDenominator(prev => prev.slice(0, -1));
+    }
+  };
+
+  // Switch between numerator and denominator fields
+  const handleFieldClick = (field: 'numerator' | 'denominator') => {
+    if (isAnimating || showFeedback) return;
+    setActiveField(field);
+  };
+
+  // Check the user's answer
+  const handleCheckAnswer = () => {
+    const userNumerator = parseInt(numerator);
+    const userDenominator = parseInt(denominator);
+
+    if (isNaN(userNumerator) || isNaN(userDenominator)) return;
+
+    setIsAnimating(true);
+
+    // Check if the answer is correct (either exact or simplified equivalent)
+    const isExactMatch = userNumerator === scenario.correctNumerator && 
+                        userDenominator === scenario.correctDenominator;
+    
+    const isSimplifiedMatch = scenario.simplifiedFraction && 
+                            userNumerator === scenario.simplifiedFraction.numerator && 
+                            userDenominator === scenario.simplifiedFraction.denominator;
+    
+    const isCorrect = isExactMatch || isSimplifiedMatch;
+
+    if (isCorrect) {
+      setFeedbackType('success');
+      setFeedbackMessage(scenario.feedback || '¡Correcto! Has calculado bien la probabilidad.');
+      setRevealedTreasure(true);
+      
+      // Generate a random clue for the treasure hunt
+      const treasureClues = [
+        "¡Has encontrado una pista del tesoro! La siguiente pista está cerca del agua.",
+        "¡Bravo! El tesoro está cada vez más cerca. Busca donde los números son grandes.",
+        "¡Una pista del tesoro! Busca donde las formas se cruzan.",
+        "¡Excelente trabajo! El tesoro está en un lugar con muchos colores.",
+        "¡Has descubierto una pista! El tesoro está escondido donde hay patrones."
+      ];
+      setClue(treasureClues[Math.floor(Math.random() * treasureClues.length)]);
+      
+      // Report correct attempt to the API
+      safeApi.onAttempt?.(true);
+    } else {
+      setFeedbackType('error');
+      // Provide specific feedback based on the error
+      if (userDenominator === scenario.correctDenominator) {
+        setFeedbackMessage(`El numerador no es correcto. Cuenta de nuevo los ${scenario.targetItem}.`);
+      } else if (userNumerator === scenario.correctNumerator) {
+        setFeedbackMessage(`El denominador no es correcto. Cuenta el total de elementos.`);
+      } else {
+        setFeedbackMessage(`La fracción no es correcta. Revisa tu cálculo de la probabilidad.`);
+      }
+      
+      // Report incorrect attempt to the API
+      safeApi.onAttempt?.(false);
+    }
+    
+    setShowFeedback(true);
+    
+    // End the animation after a delay
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 1500);
+  };
+
+  // Handle item selection
+  const handleItemSelect = (itemLabel: string) => {
+    if (isAnimating || showFeedback) return;
+    setSelectedItem(itemLabel);
+  };
+
+  // Move to the next scenario
+  const handleNextScenario = () => {
+    if (scenarios.length > 1) {
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * scenarios.length);
+      } while (newIndex === scenarioIndex);
+      setScenarioIndex(newIndex);
+    } else {
+      // Reset the current scenario if there's only one
+      setNumerator('');
+      setDenominator('');
+      setFeedbackMessage('');
+      setShowFeedback(false);
+      setShowHint(false);
+      setRevealedTreasure(false);
+      setSelectedItem(null);
+      setClue(null);
+    }
+  };
+
+  // Toggle hint display
+  const toggleHint = () => {
+    setShowHint(prev => !prev);
+  };
+
+  // Create a memoized keypad handler that will be stable across renders
+  const handleKeypadPress = useCallback((key: string) => {
+    if (key === 'backspace') {
+      handleBackspace();
+    } else if (key === 'check') {
+      !showFeedback && handleCheckAnswer();
+    } else {
+      handleKeyPress(key);
+    }
+  }, [showFeedback]);
+
+  // Initialize the keypad with a timeout to ensure proper mounting
+  useEffect(() => {
+    if (setCustomKeypadContent) {
+      setTimeout(() => {
+        setCustomKeypadContent(
+          <NumericKeypad
+            onKeyPress={handleKeypadPress}
+            allowDecimal={false}
+          />
+        );
+      }, 0);
+    }
+  }, [setCustomKeypadContent, handleKeypadPress]);
+
+  // Clean up the keypad when component unmounts
+  useEffect(() => {
+    return () => {
+      if (setCustomKeypadContent) {
+        setCustomKeypadContent(null);
+      }
+    };
+  }, [setCustomKeypadContent]);
+
+  // Auto-focus the numerator field on mount
+  useEffect(() => {
+    setActiveField('numerator');
+  }, []);
+
+  // Pick a new scenario when the challenge advances
+  useEffect(() => {
+    if (safeApi.advanceToNextChallengeSignal > 0 && scenarios.length > 1) {
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * scenarios.length);
+      } while (newIndex === scenarioIndex && scenarios.length > 1);
+      setScenarioIndex(newIndex);
+    }
+  }, [safeApi.advanceToNextChallengeSignal, scenarios.length, scenarioIndex]);
+
+  // Determine the container type based on the scenario context
+  const containerType = scenario?.context?.includes('bag') || scenario?.context?.includes('bolsa') ? 'bag' : 'box';
+
+  return (
+    <div className="probability-word-problem-container">
+      <div className="probability-word-problem-header">
+        {exercise.title || 'Problemas de Probabilidad'}
+      </div>
+
+      <div className="probability-word-problem-content">
+        <p>{scenario?.prompt || 'Calcula la probabilidad del evento.'}</p>
+        
+        <div className="probability-word-problem-scene">
+          <div className={`probability-word-problem-container-visual`}>
+            <div className={`probability-word-problem-${containerType}`}>
+              <div className="probability-word-problem-items-container">
+                {scenario?.items?.map((item: any, index: number) => {
+                  // Create multiple items based on the count
+                  return Array.from({ length: item.count }).map((_, i) => (
+                    <div 
+                      key={`${item.color}-${index}-${i}`}
+                      className={`probability-word-problem-item ${item.type} ${
+                        selectedItem === item.label ? 'selected' : ''
+                      } ${isAnimating && item.label === scenario.targetItem ? 'animated' : ''}`}
+                      style={{ 
+                        backgroundColor: item.color,
+                      }}
+                      onClick={() => handleItemSelect(item.label)}
+                      title={item.label}
+                    >
+                    </div>
+                  ));
+                })}
+              </div>
+            </div>
+          </div>
+          
+          <div className={`probability-word-problem-treasure ${revealedTreasure ? 'visible' : ''}`}></div>
+        </div>
+        
+        <div className="probability-word-problem-input">
+          <p>Probabilidad:</p>
+          <div className="probability-word-problem-fraction">
+            <input 
+              type="text"
+              className={`probability-word-problem-fraction-field ${activeField === 'numerator' ? 'active' : ''}`}
+              value={numerator}
+              readOnly
+              onClick={() => handleFieldClick('numerator')}
+            />
+            <div className="probability-word-problem-fraction-line"></div>
+            <input 
+              type="text"
+              className={`probability-word-problem-fraction-field ${activeField === 'denominator' ? 'active' : ''}`}
+              value={denominator}
+              readOnly
+              onClick={() => handleFieldClick('denominator')}
+            />
+          </div>
+        </div>
+        
+        <div className="probability-word-problem-hint" onClick={toggleHint}>
+          Ver pista
+        </div>
+        
+        {showHint && (
+          <div className="probability-word-problem-hint-content">
+            {scenario?.hint || 'Probabilidad = casos favorables ÷ casos totales'}
+          </div>
+        )}
+        
+        {!showFeedback ? (
+          <button 
+            className="probability-word-problem-check-button"
+            onClick={handleCheckAnswer}
+            disabled={!numerator || !denominator || isAnimating}
+          >
+            Comprobar
+          </button>
+        ) : (
+          <button 
+            className="probability-word-problem-next-button"
+            onClick={handleNextScenario}
+          >
+            Siguiente
+          </button>
+        )}
+        
+        {showFeedback && feedbackType && (
+          <div className={`probability-word-problem-feedback ${feedbackType}`}>
+            {feedbackMessage}
+          </div>
+        )}
+        
+        {clue && (
+          <div className="probability-word-problem-clue">
+            {clue}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ProbabilityWordProblemExercise;

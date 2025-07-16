@@ -1,0 +1,772 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Exercise as ExerciseType, ExerciseScaffoldApi, MeanValueQuestion } from '../types';
+import { Icons } from '../components/icons';
+import { shuffleArray } from '../utils';
+
+interface MeanValueMissionProps {
+  exercise: ExerciseType;
+  scaffoldApi: ExerciseScaffoldApi;
+  setCustomKeypadContent?: (keypadNode: React.ReactNode | null) => void;
+}
+
+// Using MeanValueQuestion interface from types.ts
+
+// Emojis for character
+const FACE_EMOJIS = ['📊', '🧮', '🔢', '🤔', '🧐', '💡', '🎯', '✏️', '📏'];
+
+// Balance Scale component for visualization
+const BalanceScaleVisualization: React.FC<{
+  values: number[];
+  userAnswer: number | null;
+  isAnswerSubmitted: boolean;
+  isCorrect: boolean;
+  mean: number;
+  unit?: string;
+  width?: number;
+  height?: number;
+}> = ({ 
+  values, 
+  userAnswer, 
+  isAnswerSubmitted,
+  isCorrect,
+  mean,
+  unit = '',
+  width = 360, 
+  height = 260
+}) => {
+  const [showAnimation, setShowAnimation] = useState<boolean>(false);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const total = values.reduce((a, b) => a + b, 0);
+  
+  useEffect(() => {
+    if (isAnswerSubmitted && isCorrect) {
+      // Start animation after a short delay
+      const timer = setTimeout(() => {
+        setShowAnimation(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowAnimation(false);
+    }
+  }, [isAnswerSubmitted, isCorrect]);
+
+  // Scale dimensions
+  const padding = { top: 20, right: 20, bottom: 60, left: 40 };
+  const scaleWidth = width - padding.left - padding.right;
+  const scaleHeight = 120;
+  const blockWidth = scaleWidth / Math.max(values.length * 2, 8);
+  const maxValue = Math.max(...values) * 1.5;
+  const blockHeightRatio = scaleHeight / maxValue;
+
+  // Calculation for balancing animation
+  const meanBlockHeight = mean * blockHeightRatio;
+  
+  return (
+    <svg 
+      ref={svgRef}
+      width={width} 
+      height={height} 
+      aria-label="Balance scale visualization for mean calculation"
+      className="transition-all duration-300"
+    >
+      {/* Scale base */}
+      <rect 
+        x={padding.left + scaleWidth / 2 - 10} 
+        y={padding.top + scaleHeight + 30} 
+        width={20} 
+        height={40} 
+        fill="#64748b" 
+        rx={2}
+      />
+      <rect 
+        x={padding.left + scaleWidth / 4 - 60} 
+        y={padding.top + scaleHeight + 70} 
+        width={scaleWidth / 2 + 120} 
+        height={10} 
+        fill="#64748b" 
+        rx={2}
+      />
+      
+      {/* Scale arm */}
+      <rect
+        x={padding.left}
+        y={padding.top + scaleHeight + 10}
+        width={scaleWidth}
+        height={8}
+        fill={showAnimation ? "#10b981" : "#64748b"}
+        rx={2}
+        className={showAnimation ? "transition-all duration-1000" : ""}
+        transform={showAnimation ? "" : "rotate(0, " + (padding.left + scaleWidth / 2) + ", " + (padding.top + scaleHeight + 14) + ")"}
+      />
+      
+      {/* Original value blocks - left side */}
+      {!showAnimation && values.map((value, index) => {
+        const blockHeight = value * blockHeightRatio;
+        const xPos = padding.left + (blockWidth + 5) * index + 20;
+        
+        return (
+          <g key={`block-${index}`} className="transition-all duration-500">
+            <rect
+              x={xPos}
+              y={padding.top + scaleHeight - blockHeight}
+              width={blockWidth}
+              height={blockHeight}
+              fill={`hsl(${(200 + index * 30) % 360}, 70%, 60%)`}
+              stroke="#475569"
+              strokeWidth="1"
+              rx={2}
+            />
+            <text
+              x={xPos + blockWidth / 2}
+              y={padding.top + scaleHeight - blockHeight - 5}
+              textAnchor="middle"
+              fontSize="10"
+              fill="#334155"
+              fontWeight="bold"
+            >
+              {value}{unit}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* Mean value blocks - animation state */}
+      {showAnimation && Array(values.length).fill(0).map((_, index) => {
+        const xPos = padding.left + ((scaleWidth - (blockWidth + 5) * values.length) / 2) + (blockWidth + 5) * index;
+        
+        return (
+          <g key={`mean-block-${index}`} className="transition-all duration-1000">
+            <rect
+              x={xPos}
+              y={padding.top + scaleHeight - meanBlockHeight}
+              width={blockWidth}
+              height={meanBlockHeight}
+              fill="#10b981"
+              stroke="#064e3b"
+              strokeWidth="1"
+              rx={2}
+            />
+            <text
+              x={xPos + blockWidth / 2}
+              y={padding.top + scaleHeight - meanBlockHeight - 5}
+              textAnchor="middle"
+              fontSize="10"
+              fill="#064e3b"
+              fontWeight="bold"
+            >
+              {mean}{unit}
+            </text>
+          </g>
+        );
+      })}
+      
+      {/* Calculation display */}
+      <g>
+        <rect
+          x={padding.left + 10}
+          y={height - padding.bottom + 15}
+          width={scaleWidth - 20}
+          height={25}
+          fill="#f1f5f9"
+          stroke="#cbd5e1"
+          rx={4}
+        />
+        
+        <text
+          x={padding.left + scaleWidth / 2}
+          y={height - padding.bottom + 30}
+          textAnchor="middle"
+          fontSize="12"
+          fill={isAnswerSubmitted ? (isCorrect ? "#10b981" : "#ef4444") : "#64748b"}
+          fontWeight="medium"
+          className="transition-all duration-300"
+        >
+          {isAnswerSubmitted ? (
+            <tspan>
+              ({values.join(' + ')}) ÷ {values.length} = {mean}{unit}
+            </tspan>
+          ) : (
+            <tspan>
+              ∑ = {total}{unit} | n = {values.length} | x̄ = ?
+            </tspan>
+          )}
+        </text>
+      </g>
+
+      {/* Total value indicator */}
+      <text
+        x={padding.left + 15}
+        y={padding.top + 15}
+        fontSize="12"
+        fill="#64748b"
+      >
+        Total: {total}{unit}
+      </text>
+      
+      {/* Count indicator */}
+      <text
+        x={padding.left + scaleWidth - 15}
+        y={padding.top + 15}
+        fontSize="12"
+        fill="#64748b"
+        textAnchor="end"
+      >
+        Cantidad: {values.length}
+      </text>
+    </svg>
+  );
+};
+
+// Number Line component for visualization
+const NumberLineVisualization: React.FC<{
+  values: number[];
+  userAnswer: number | null;
+  isAnswerSubmitted: boolean;
+  isCorrect: boolean;
+  mean: number;
+  unit?: string;
+  width?: number;
+  height?: number;
+}> = ({ 
+  values, 
+  userAnswer, 
+  isAnswerSubmitted,
+  isCorrect,
+  mean,
+  unit = '',
+  width = 360, 
+  height = 260
+}) => {
+  const [showAnimation, setShowAnimation] = useState<boolean>(false);
+  const svgRef = useRef<SVGSVGElement>(null);
+  
+  useEffect(() => {
+    if (isAnswerSubmitted && isCorrect) {
+      // Start animation after a short delay
+      const timer = setTimeout(() => {
+        setShowAnimation(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowAnimation(false);
+    }
+  }, [isAnswerSubmitted, isCorrect]);
+
+  // Number line dimensions
+  const padding = { top: 80, right: 30, bottom: 80, left: 30 };
+  const lineWidth = width - padding.left - padding.right;
+  
+  // Calculate min and max for the number line
+  const minValue = Math.min(...values) * 0.8;
+  const maxValue = Math.max(...values) * 1.2;
+  const range = maxValue - minValue;
+  
+  // Function to convert value to x position
+  const valueToX = (value: number) => {
+    return padding.left + (value - minValue) / range * lineWidth;
+  };
+  
+  // Steps for the number line
+  const step = range <= 5 ? 0.5 : range <= 10 ? 1 : 5;
+  const ticks = [];
+  for (let i = Math.floor(minValue / step) * step; i <= Math.ceil(maxValue / step) * step; i += step) {
+    ticks.push(i);
+  }
+  
+  return (
+    <svg 
+      ref={svgRef}
+      width={width} 
+      height={height} 
+      aria-label="Number line visualization for mean calculation"
+      className="transition-all duration-300"
+    >
+      {/* Number line */}
+      <line
+        x1={padding.left}
+        y1={padding.top}
+        x2={padding.left + lineWidth}
+        y2={padding.top}
+        stroke="#64748b"
+        strokeWidth="2"
+      />
+      
+      {/* Ticks and labels */}
+      {ticks.map(tick => {
+        const xPos = valueToX(tick);
+        return (
+          <g key={`tick-${tick}`}>
+            <line
+              x1={xPos}
+              y1={padding.top - 5}
+              x2={xPos}
+              y2={padding.top + 5}
+              stroke="#64748b"
+              strokeWidth="1"
+            />
+            <text
+              x={xPos}
+              y={padding.top + 20}
+              textAnchor="middle"
+              fontSize="10"
+              fill="#64748b"
+            >
+              {tick}{unit}
+            </text>
+          </g>
+        );
+      })}
+      
+      {/* Original data points */}
+      {values.map((value, index) => {
+        const xPos = valueToX(value);
+        const yPos = !showAnimation ? padding.top - 25 : padding.top - 15 + Math.sin((index + 1) * Math.PI / values.length) * 10;
+        
+        return (
+          <g key={`point-${index}`} className={showAnimation ? "transition-all duration-1000" : ""}>
+            <circle
+              cx={xPos}
+              cy={yPos}
+              r={8}
+              fill={showAnimation ? "#10b981" : `hsl(${(200 + index * 30) % 360}, 70%, 60%)`}
+              stroke="#475569"
+              strokeWidth="1"
+            />
+            <text
+              x={xPos}
+              y={yPos - 15}
+              textAnchor="middle"
+              fontSize="10"
+              fill="#334155"
+              fontWeight="bold"
+            >
+              {value}{unit}
+            </text>
+            
+            {/* Line connecting to mean during animation */}
+            {showAnimation && (
+              <line
+                x1={xPos}
+                y1={yPos}
+                x2={valueToX(mean)}
+                y2={padding.top - 25}
+                stroke="#10b981"
+                strokeWidth="1"
+                strokeDasharray="3,2"
+              />
+            )}
+          </g>
+        );
+      })}
+      
+      {/* Mean indicator */}
+      {(userAnswer !== null || showAnimation) && (
+        <g className={showAnimation ? "transition-all duration-1000" : ""}>
+          <circle
+            cx={valueToX(showAnimation ? mean : (userAnswer || 0))}
+            cy={padding.top - 25}
+            r={10}
+            fill={showAnimation ? "#10b981" : (isAnswerSubmitted ? (isCorrect ? "#10b981" : "#ef4444") : "#3b82f6")}
+            stroke="#475569"
+            strokeWidth="1.5"
+          />
+          <text
+            x={valueToX(showAnimation ? mean : (userAnswer || 0))}
+            y={padding.top - 25}
+            textAnchor="middle"
+            fontSize="10"
+            fill="white"
+            fontWeight="bold"
+            dominantBaseline="middle"
+          >
+            x̄
+          </text>
+          <text
+            x={valueToX(showAnimation ? mean : (userAnswer || 0))}
+            y={padding.top - 45}
+            textAnchor="middle"
+            fontSize="12"
+            fill={showAnimation ? "#10b981" : (isAnswerSubmitted ? (isCorrect ? "#10b981" : "#ef4444") : "#3b82f6")}
+            fontWeight="bold"
+          >
+            {showAnimation ? mean : (userAnswer || 0)}{unit}
+          </text>
+        </g>
+      )}
+      
+      {/* Calculation display */}
+      <g>
+        <rect
+          x={padding.left + 10}
+          y={height - padding.bottom + 15}
+          width={lineWidth - 20}
+          height={25}
+          fill="#f1f5f9"
+          stroke="#cbd5e1"
+          rx={4}
+        />
+        
+        <text
+          x={padding.left + lineWidth / 2}
+          y={height - padding.bottom + 30}
+          textAnchor="middle"
+          fontSize="12"
+          fill={isAnswerSubmitted ? (isCorrect ? "#10b981" : "#ef4444") : "#64748b"}
+          fontWeight="medium"
+        >
+          {isAnswerSubmitted ? (
+            <tspan>
+              ({values.join(' + ')}) ÷ {values.length} = {mean}{unit}
+            </tspan>
+          ) : (
+            <tspan>
+              Media = Total ÷ Cantidad = ? 
+            </tspan>
+          )}
+        </text>
+      </g>
+
+      {/* Total and count indicators */}
+      <text
+        x={padding.left + 15}
+        y={height - padding.bottom - 10}
+        fontSize="12"
+        fill="#64748b"
+      >
+        Total: {values.reduce((a, b) => a + b, 0)}{unit}
+      </text>
+      
+      <text
+        x={padding.left + lineWidth - 15}
+        y={height - padding.bottom - 10}
+        fontSize="12"
+        fill="#64748b"
+        textAnchor="end"
+      >
+        Cantidad: {values.length}
+      </text>
+    </svg>
+  );
+};
+
+// Main component
+export const MeanValueMissionExercise: React.FC<MeanValueMissionProps> = ({
+  exercise,
+  scaffoldApi,
+  setCustomKeypadContent,
+}) => {
+  const [currentQuestion, setCurrentQuestion] = useState<MeanValueQuestion | null>(null);
+  const [availableQuestions, setAvailableQuestions] = useState<MeanValueQuestion[]>([]);
+  const [userAnswer, setUserAnswer] = useState<number | null>(null);
+  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState<boolean>(false);
+  const [isCorrect, setIsCorrect] = useState<boolean>(false);
+  const [answerString, setAnswerString] = useState<string>("");
+  const [characterEmoji, setCharacterEmoji] = useState<string>(FACE_EMOJIS[0]);
+  const [isAttemptPending, setIsAttemptPending] = useState<boolean>(false);
+  
+  const { showFeedback, onAttempt, advanceToNextChallengeSignal } = scaffoldApi;
+  const prevAdvanceSignalRef = useRef(advanceToNextChallengeSignal);
+
+  const { scenarios = [] } = exercise.data || {};
+
+  // Calculate mean for current question
+  const calculateMean = useCallback((values: number[]): number => {
+    if (!values || values.length === 0) return 0;
+    const sum = values.reduce((a, b) => a + b, 0);
+    return parseFloat((sum / values.length).toFixed(2));
+  }, []);
+
+  // Initialize available questions
+  useEffect(() => {
+    if (scenarios.length > 0) {
+      setAvailableQuestions(shuffleArray([...scenarios]));
+    }
+  }, [scenarios, exercise.id]);
+
+  // Load next question when needed
+  const loadNewQuestion = useCallback(() => {
+    let pool = availableQuestions;
+    if (pool.length === 0 && scenarios?.length > 0) {
+      pool = shuffleArray([...scenarios]);
+      setAvailableQuestions(pool);
+    }
+
+    if (pool.length > 0) {
+      const nextQuestion = pool[0];
+      setCurrentQuestion(nextQuestion);
+      setUserAnswer(null);
+      setIsAnswerSubmitted(false);
+      setIsCorrect(false);
+      setAnswerString("");
+      setAvailableQuestions(prev => prev.slice(1));
+      
+      // Set random emoji for character
+      setCharacterEmoji(nextQuestion.emoji || FACE_EMOJIS[Math.floor(Math.random() * FACE_EMOJIS.length)]);
+    } else {
+      onAttempt(true);
+      return;
+    }
+    setIsAttemptPending(false);
+    showFeedback(null);
+  }, [availableQuestions, scenarios, showFeedback, onAttempt]);
+
+  // Load initial question
+  useEffect(() => { 
+    if (scenarios?.length > 0 && !currentQuestion) loadNewQuestion(); 
+  }, [scenarios, currentQuestion, loadNewQuestion]);
+
+  // Handle advancing to next question
+  useEffect(() => {
+    if (advanceToNextChallengeSignal > prevAdvanceSignalRef.current) {
+      loadNewQuestion();
+    }
+    prevAdvanceSignalRef.current = advanceToNextChallengeSignal;
+  }, [advanceToNextChallengeSignal, loadNewQuestion]);
+
+  // Verify user answer
+  const verifyAnswer = useCallback(() => {
+    if (!currentQuestion || userAnswer === null || isAttemptPending) return;
+    setIsAttemptPending(true);
+    setIsAnswerSubmitted(true);
+    
+    const correctMean = calculateMean(currentQuestion.values);
+    const isUserCorrect = Math.abs(userAnswer - correctMean) < 0.01; // Allow for small rounding errors
+    setIsCorrect(isUserCorrect);
+    
+    let feedbackMessage = '';
+    if (isUserCorrect) {
+      feedbackMessage = currentQuestion.feedback?.correct || 
+        `¡Correcto! La media es ${correctMean}${currentQuestion.unit || ''}.`;
+    } else {
+      feedbackMessage = currentQuestion.feedback?.incorrect || 
+        `El valor ${userAnswer} no es correcto. La media es ${correctMean}${currentQuestion.unit || ''}.`;
+      
+      if (userAnswer === correctMean * currentQuestion.values.length) {
+        feedbackMessage = `Has sumado todos los valores pero olvidaste dividir por el número de elementos (${currentQuestion.values.length}).`;
+      } else if (userAnswer === correctMean / currentQuestion.values.length) {
+        feedbackMessage = `Has dividido dos veces por el número de elementos. Recuerda que para calcular la media: suma todos los valores y luego divide por ${currentQuestion.values.length}.`;
+      }
+      
+      if (currentQuestion.hint) {
+        feedbackMessage += ` ${currentQuestion.hint}`;
+      }
+    }
+    
+    onAttempt(isUserCorrect);
+    showFeedback({ type: isUserCorrect ? 'correct' : 'incorrect', message: feedbackMessage });
+    
+    if (!isUserCorrect) {
+      setTimeout(() => {
+        setIsAttemptPending(false);
+        setIsAnswerSubmitted(false);
+      }, 3000);
+    }
+  }, [currentQuestion, userAnswer, isAttemptPending, calculateMean, onAttempt, showFeedback]);
+  
+  // Create keypad for user input
+  const createKeypad = useCallback(() => {
+    if (!currentQuestion) return null;
+    
+    const handleAddNumber = (num: string) => {
+      if (isAnswerSubmitted) return;
+      
+      setAnswerString((currentStr) => {
+        // Handle decimal separator (comma in Spanish)
+        if (num === ',') {
+          if (currentStr.includes(',')) return currentStr;
+          return currentStr === '' ? '0,' : currentStr + ',';
+        }
+        
+        // Don't allow more than 6 characters total
+        if (currentStr.length >= 6) return currentStr;
+        
+        const newStr = currentStr + num;
+        
+        // Convert comma to period for internal calculations
+        const valueForCalculation = newStr.replace(',', '.');
+        setUserAnswer(parseFloat(valueForCalculation));
+        
+        return newStr;
+      });
+    };
+    
+    const handleBackspace = () => {
+      if (isAnswerSubmitted) return;
+      
+      setAnswerString((currentStr) => {
+        const newStr = currentStr.slice(0, -1);
+        
+        if (newStr === '' || newStr === '0,' || newStr === '-') {
+          setUserAnswer(null);
+          return '';
+        } else {
+          // Convert comma to period for internal calculations
+          const valueForCalculation = newStr.replace(',', '.');
+          setUserAnswer(parseFloat(valueForCalculation));
+          return newStr;
+        }
+      });
+    };
+    
+    return (
+      <div className="flex flex-col items-center p-2">
+        <div className="text-center mb-2 text-slate-700 font-medium">
+          Calcula la media:
+        </div>
+        
+        <div className="mb-4 p-3 bg-slate-100 rounded-md w-full text-center">
+          <span className="text-2xl font-bold">
+            {answerString || '_'}{currentQuestion.unit || ''}
+          </span>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+            <button
+              key={num}
+              onClick={() => handleAddNumber(num.toString())}
+              className="w-12 h-12 flex items-center justify-center bg-slate-200 hover:bg-slate-300 rounded-lg text-lg font-semibold"
+              disabled={isAnswerSubmitted}
+            >
+              {num}
+            </button>
+          ))}
+          
+          <button
+            onClick={() => handleAddNumber('0')}
+            className="w-12 h-12 flex items-center justify-center bg-slate-200 hover:bg-slate-300 rounded-lg text-lg font-semibold"
+            disabled={isAnswerSubmitted}
+          >
+            0
+          </button>
+          
+          <button
+            onClick={() => handleAddNumber(',')}
+            className="w-12 h-12 flex items-center justify-center bg-slate-200 hover:bg-slate-300 rounded-lg text-xl font-semibold"
+            disabled={isAnswerSubmitted || answerString.includes(',')}
+          >
+            ,
+          </button>
+          
+          <button
+            onClick={() => {
+              if (isAnswerSubmitted) return;
+              setUserAnswer(null);
+              setAnswerString("");
+            }}
+            className="w-12 h-12 flex items-center justify-center bg-red-200 hover:bg-red-300 rounded-lg text-lg font-semibold"
+            disabled={isAnswerSubmitted}
+          >
+            C
+          </button>
+          
+          <button
+            onClick={handleBackspace}
+            className="w-12 h-12 flex items-center justify-center bg-slate-200 hover:bg-slate-300 rounded-lg"
+            disabled={isAnswerSubmitted}
+          >
+            ←
+          </button>
+        </div>
+        
+        <button
+          onClick={verifyAnswer}
+          className={`mt-2 px-6 py-3 ${
+            userAnswer === null 
+              ? 'bg-slate-400 cursor-not-allowed' 
+              : 'bg-sky-600 hover:bg-sky-700'
+          } text-white rounded-md w-full`}
+          disabled={userAnswer === null || isAnswerSubmitted}
+        >
+          Verificar
+        </button>
+        
+        {currentQuestion.hint && !isAnswerSubmitted && (
+          <button
+            onClick={() => {
+              if (typeof currentQuestion.hint === 'string') {
+                showFeedback({ type: 'incorrect', message: currentQuestion.hint });
+              }
+            }}
+            className="mt-2 px-6 py-2 bg-slate-100 text-slate-600 border border-slate-300 rounded-md text-sm hover:bg-slate-200 w-full"
+          >
+            Pista
+          </button>
+        )}
+      </div>
+    );
+  }, [currentQuestion, userAnswer, isAnswerSubmitted, verifyAnswer, showFeedback, answerString, setAnswerString]);
+
+  // Set up keypad controls
+  useEffect(() => {
+    if (setCustomKeypadContent && currentQuestion) {
+      setCustomKeypadContent(createKeypad());
+    }
+    
+    return () => {
+      if (setCustomKeypadContent) {
+        setCustomKeypadContent(null);
+      }
+    };
+  }, [setCustomKeypadContent, currentQuestion, userAnswer, isAnswerSubmitted, createKeypad, answerString]);
+
+  // Main render function
+  if (!currentQuestion) {
+    return <div className="flex justify-center items-center h-64">Cargando ejercicio...</div>;
+  }
+
+  const correctMean = calculateMean(currentQuestion.values);
+  // Default to scale visualization if not specified
+  const visualization = (currentQuestion as any).visualization || 'scale';
+
+  return (
+    <div className="flex flex-col items-center justify-start text-center w-full max-w-2xl p-2 space-y-2">
+      <div className="relative flex items-center justify-center mb-1">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center text-5xl sm:text-6xl">
+          {characterEmoji}
+        </div>
+        <Icons.SpeechBubbleIcon className="bg-sky-600 text-white text-sm p-2 max-w-[260px]" direction="left">
+          {currentQuestion.description}
+        </Icons.SpeechBubbleIcon>
+      </div>
+
+      <h3 className="text-lg font-semibold text-slate-700">
+        {currentQuestion.title}
+      </h3>
+
+      <p className="text-sm text-slate-600 mb-2">
+        {currentQuestion.context}
+      </p>
+
+      <div className="flex flex-col items-center justify-center">
+        {visualization === 'scale' ? (
+          <BalanceScaleVisualization
+            values={currentQuestion.values}
+            userAnswer={userAnswer}
+            isAnswerSubmitted={isAnswerSubmitted}
+            isCorrect={isCorrect}
+            mean={correctMean}
+            unit={currentQuestion.unit}
+          />
+        ) : (
+          <NumberLineVisualization
+            values={currentQuestion.values}
+            userAnswer={userAnswer}
+            isAnswerSubmitted={isAnswerSubmitted}
+            isCorrect={isCorrect}
+            mean={correctMean}
+            unit={currentQuestion.unit}
+          />
+        )}
+        
+        <div className="text-sm text-slate-600 mt-3 bg-slate-50 p-2 rounded-md border border-slate-200">
+          <p>Pasos para calcular la media:</p>
+          <ol className="list-decimal list-inside text-left text-xs mt-1">
+            <li>Suma todos los valores: {currentQuestion.values.join(' + ')} = {currentQuestion.values.reduce((a, b) => a + b, 0)}{currentQuestion.unit || ''}</li>
+            <li>Divide por el número de valores: {currentQuestion.values.reduce((a, b) => a + b, 0)} ÷ {currentQuestion.values.length} = ?</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  );
+};

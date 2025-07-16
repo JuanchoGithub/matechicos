@@ -1,0 +1,47 @@
+@@ -76,6 +76,7 @@
+   const [isComplete, setIsComplete] = useState(false);
+   const spinnerRef = useRef<HTMLDivElement>(null);
+   const coinRef = useRef<HTMLDivElement>(null);
++  const containerRef = useRef<HTMLDivElement>(null);
+   const numeratorInputRef = useRef<HTMLInputElement>(null);
+   
+   // Timing refs
+@@ -168,6 +169,13 @@
+       coinRef.current.style.transition = 'none';
+       coinRef.current.style.transform = 'rotateY(0deg)';
+     }
++    
++    // Scroll to top when resetting
++    if (containerRef.current) {
++      containerRef.current.scrollTo({
++        top: 0,
++        behavior: 'smooth'
++      });
++    }
+   };
+   
+   const startExperiment = () => {
+@@ -176,6 +184,13 @@
+     setIsRunning(true);
+     setIsPaused(false);
+     setShowFeedback(false);
++
++    // Scroll to top when starting an experiment
++    if (containerRef.current) {
++      containerRef.current.scrollTo({
++        top: 0,
++        behavior: 'smooth'
++      });
++    }
+     
+     // Schedule experiments to run at intervals
+     animationInterval.current = setInterval(() => {
+@@ -495,7 +510,7 @@
+   }
+   
+   return (
+-    <div className="experimental-probability-simulator">
++    <div className="experimental-probability-simulator" ref={containerRef}>
+       <div className="simulator-header">
+         <h2>Laboratorio de Probabilidad Experimental</h2>
+         <p>{currentScenario.description}</p>
