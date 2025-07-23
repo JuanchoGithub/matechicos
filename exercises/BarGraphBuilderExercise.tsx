@@ -49,14 +49,20 @@ const BarGraphDisplay: React.FC<{
   onBarAdjust,
   isInteractive, 
   highlightMax = false,
-  width = 360, 
-  height = 280 
+  width,
+  height
 }) => {
+  // Dynamically set width based on number of bars to avoid label cutoff
+  const minWidth = 360;
+  const barMinWidth = 90; // px per bar
+  const numBars = categories.length;
+  const dynamicWidth = Math.max(minWidth, numBars * barMinWidth);
+  const widthToUse = width ?? dynamicWidth;
+  const heightToUse = height ?? 280;
   const svgRef = useRef<SVGSVGElement>(null);
   const padding = { top: 20, right: 20, bottom: 60, left: 40 };
-  const plotWidth = width - padding.left - padding.right;
-  const plotHeight = height - padding.top - padding.bottom;
-  const numBars = categories.length;
+  const plotWidth = widthToUse - padding.left - padding.right;
+  const plotHeight = heightToUse - padding.top - padding.bottom;
   const barGroupWidth = plotWidth / numBars;
   const barWidth = barGroupWidth * 0.6;
   const barSpacing = barGroupWidth * 0.4;
@@ -91,12 +97,13 @@ const BarGraphDisplay: React.FC<{
   }, [isInteractive, maxYAxisValue, onBarAdjust, onBarClick, padding.bottom, plotHeight, userValues]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full" style={{ overflowX: 'auto' }}>
       <svg 
         ref={svgRef}
-        width={width} 
-        height={height} 
+        width={widthToUse}
+        height={heightToUse}
         aria-label={`Gráfico de barras para ${xAxisLabel}`}
+        style={{ minWidth: minWidth }}
       >
         {/* Y-axis Label */}
         <text 
@@ -113,7 +120,7 @@ const BarGraphDisplay: React.FC<{
         {/* X-axis Label */}
         <text 
           x={padding.left + plotWidth / 2} 
-          y={height - padding.bottom / 4} 
+          y={heightToUse - padding.bottom / 4} 
           textAnchor="middle" 
           fontSize="10" 
           fill="rgb(71 85 105)"

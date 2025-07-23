@@ -191,8 +191,7 @@ const BarChartSVG: React.FC<{
   orientation: 'vertical' | 'horizontal';
   valueAxisLabel: string;
 }> = ({ data, width, height, padding, orientation, valueAxisLabel }) => {
-    const plotWidth = orientation === 'vertical' ? width - 2 * padding : width - 2 * padding - 30; 
-    const plotHeight = orientation === 'vertical' ? height - 2 * padding - 20 : height - 2 * padding; 
+    // (moved to below, dynamic)
 
     const maxValue = Math.max(...data.map(d => d.value), 0);
     const numTicks = 5;
@@ -201,17 +200,34 @@ const BarChartSVG: React.FC<{
 
     const barWidthPercentage = 0.6;
 
-    return (
-        <svg width={width} height={height} aria-label={`Diagrama de barras ${orientation}. Eje de valor: ${valueAxisLabel}. Categorías: ${data.map(d=>d.name).join(', ')}.`}>
+    // Dynamically calculate width for horizontal orientation
+    let dynamicWidth = width;
+    let dynamicLeftPadding = padding;
+    if (orientation === 'horizontal') {
+        // Estimate max label length in pixels (8px per char, plus padding)
+        const maxLabelLength = Math.max(...data.map(d => d.name.length), 0);
+        const labelPixelWidth = maxLabelLength * 8 + 16; // 8px per char + some extra
+        dynamicLeftPadding = Math.max(padding, labelPixelWidth);
+        const minBarArea = 320;
+        dynamicWidth = Math.max(width, minBarArea + dynamicLeftPadding + 10);
+    }
+    const plotWidth = orientation === 'vertical'
+        ? (width - 2 * padding)
+        : (dynamicWidth - dynamicLeftPadding - padding);
+    const plotHeight = orientation === 'vertical'
+        ? (height - 2 * padding - 20)
+        : (height - 2 * padding);
+    const svgElement = (
+        <svg width={orientation === 'horizontal' ? dynamicWidth : width} height={height} aria-label={`Diagrama de barras ${orientation}. Eje de valor: ${valueAxisLabel}. Categorías: ${data.map(d=>d.name).join(', ')}.`}>
             {orientation === 'vertical' && (
                 <text x={padding / 2 - 10} y={height / 2} transform={`rotate(-90 ${padding / 2 - 10} ${height / 2})`} textAnchor="middle" fontSize="10" fill="rgb(71 85 105)">{valueAxisLabel}</text>
             )}
-             {orientation === 'horizontal' && (
-                <text x={width/2} y={height - padding/4} textAnchor="middle" fontSize="10" fill="rgb(71 85 105)">{valueAxisLabel}</text>
+            {orientation === 'horizontal' && (
+                <text x={dynamicWidth/2} y={height - padding/4} textAnchor="middle" fontSize="10" fill="rgb(71 85 105)">{valueAxisLabel}</text>
             )}
 
-            <line x1={padding} y1={padding} x2={padding} y2={padding + plotHeight} stroke="rgb(100 116 139)" strokeWidth="1.5" /> 
-            <line x1={padding} y1={padding + plotHeight} x2={padding + plotWidth} y2={padding + plotHeight} stroke="rgb(100 116 139)" strokeWidth="1.5" /> 
+            <line x1={orientation === 'horizontal' ? dynamicLeftPadding : padding} y1={padding} x2={orientation === 'horizontal' ? dynamicLeftPadding : padding} y2={padding + plotHeight} stroke="rgb(100 116 139)" strokeWidth="1.5" /> 
+            <line x1={orientation === 'horizontal' ? dynamicLeftPadding : padding} y1={padding + plotHeight} x2={(orientation === 'horizontal' ? dynamicLeftPadding : padding) + plotWidth} y2={padding + plotHeight} stroke="rgb(100 116 139)" strokeWidth="1.5" /> 
 
             {Array.from({ length: Math.max(1, yAxisMax / tickStep) + 1 }).map((_, i) => {
                 const value = i * tickStep;
@@ -224,7 +240,7 @@ const BarChartSVG: React.FC<{
                         </g>
                     );
                 } else { 
-                    const xPos = padding + (value / yAxisMax) * plotWidth;
+                    const xPos = dynamicLeftPadding + (value / yAxisMax) * plotWidth;
                      return (
                         <g key={`x-tick-${value}`}>
                             <line x1={xPos} y1={padding} x2={xPos} y2={padding + plotHeight + 3} stroke={value === 0 ? "rgb(100 116 139)" : "rgb(203 213 225)"} strokeWidth="1" strokeDasharray={value === 0 ? "" : "2,2"}/>
@@ -251,14 +267,23 @@ const BarChartSVG: React.FC<{
                     const barActualHeight = (plotHeight / data.length) * barWidthPercentage;
                     return (
                         <g key={item.name}>
-                            <rect x={padding} y={barY} width={barLength} height={barActualHeight} fill={BAR_CSS_COLOR_MAP[item.color] || item.color} />
-                            <text x={padding - 5} y={barY + barActualHeight / 2 + 3} textAnchor="end" fontSize="8" fill="rgb(71 85 105)">{item.name}</text>
+                            <rect x={dynamicLeftPadding} y={barY} width={barLength} height={barActualHeight} fill={BAR_CSS_COLOR_MAP[item.color] || item.color} />
+                            <text x={dynamicLeftPadding - 5} y={barY + barActualHeight / 2 + 3} textAnchor="end" fontSize="8" fill="rgb(71 85 105)">{item.name}</text>
                         </g>
                     );
                 }
             })}
         </svg>
     );
+    // Wrap in scrollable div for horizontal overflow
+    if (orientation === 'horizontal') {
+        return (
+            <div style={{ overflowX: 'auto', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                {svgElement}
+            </div>
+        );
+    }
+    return svgElement;
 };
 
 export const TestInterpretarDiagramasBarras: React.FC<TestInterpretarDiagramasBarrasProps> = ({
