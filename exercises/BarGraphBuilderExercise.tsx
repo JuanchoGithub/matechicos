@@ -60,7 +60,15 @@ const BarGraphDisplay: React.FC<{
   const widthToUse = width ?? dynamicWidth;
   const heightToUse = height ?? 280;
   const svgRef = useRef<SVGSVGElement>(null);
-  const padding = { top: 20, right: 20, bottom: 60, left: 40 };
+
+  // Calculate the longest Y label (number) for left padding
+  const yLabels = Array.from({ length: Math.floor(maxYAxisValue / yAxisStep) + 1 }, (_, i) => String(i * yAxisStep));
+  const longestYLabel = yLabels.reduce((a, b) => (a.length > b.length ? a : b), '');
+  // Estimate width: 8px per character + 10px buffer
+  const estimatedLabelWidth = longestYLabel.length * 8 + 10;
+  const minLeftPadding = 40;
+  const leftPadding = Math.max(minLeftPadding, estimatedLabelWidth + 12); // 12px for tick/space
+  const padding = { top: 20, right: 20, bottom: 60, left: leftPadding };
   const plotWidth = widthToUse - padding.left - padding.right;
   const plotHeight = heightToUse - padding.top - padding.bottom;
   const barGroupWidth = plotWidth / numBars;
@@ -97,21 +105,22 @@ const BarGraphDisplay: React.FC<{
   }, [isInteractive, maxYAxisValue, onBarAdjust, onBarClick, padding.bottom, plotHeight, userValues]);
 
   return (
-    <div className="flex flex-col w-full" style={{ overflowX: 'auto' }}>
-      <svg 
-        ref={svgRef}
-        width={widthToUse}
-        height={heightToUse}
-        aria-label={`Gráfico de barras para ${xAxisLabel}`}
-        style={{ minWidth: minWidth }}
-      >
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ overflowX: 'auto', width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <svg
+          ref={svgRef}
+          width={widthToUse}
+          height={heightToUse}
+          aria-label={`Gráfico de barras para ${xAxisLabel}`}
+          style={{ minWidth: minWidth, display: 'block', margin: '0 auto' }}
+        >
         {/* Y-axis Label */}
-        <text 
-          x={-(padding.top + plotHeight / 2)} 
-          y={padding.left / 3} 
-          transform="rotate(-90)" 
-          textAnchor="middle" 
-          fontSize="10" 
+        <text
+          x={-(padding.top + plotHeight / 2)}
+          y={Math.max(12, padding.left / 3)}
+          transform="rotate(-90)"
+          textAnchor="middle"
+          fontSize="10"
           fill="rgb(71 85 105)"
         >
           {yAxisLabel}
@@ -150,24 +159,24 @@ const BarGraphDisplay: React.FC<{
         {Array.from({ length: Math.floor(maxYAxisValue / yAxisStep) + 1 }, (_, i) => {
           const value = i * yAxisStep;
           const yPos = padding.top + plotHeight - (value / maxYAxisValue) * plotHeight;
-          
           return (
             <g key={`y-tick-${value}`}>
-              <line 
-                x1={padding.left - 3} 
-                y1={yPos} 
-                x2={padding.left + plotWidth} 
-                y2={yPos} 
-                stroke={value === 0 ? "rgb(100 116 139)" : "rgb(226 232 240)"} 
-                strokeWidth="1" 
+              <line
+                x1={padding.left - 3}
+                y1={yPos}
+                x2={padding.left + plotWidth}
+                y2={yPos}
+                stroke={value === 0 ? "rgb(100 116 139)" : "rgb(226 232 240)"}
+                strokeWidth="1"
                 strokeDasharray={value === 0 ? "" : "2,2"}
               />
-              <text 
-                x={padding.left - 8} 
-                y={yPos + 3} 
-                textAnchor="end" 
-                fontSize="8" 
+              <text
+                x={padding.left - 8}
+                y={yPos + 3}
+                textAnchor="end"
+                fontSize="8"
                 fill="rgb(100 116 139)"
+                style={{ dominantBaseline: 'middle' }}
               >
                 {value}
               </text>
@@ -178,7 +187,6 @@ const BarGraphDisplay: React.FC<{
         {/* Clickable area for each bar - for bar height adjustment */}
         {isInteractive && onBarAdjust && categories.map((cat, index) => {
           const xPos = padding.left + barSpacing / 2 + index * barGroupWidth;
-          
           return (
             <rect
               key={`clickable-${cat.name}`}
@@ -202,10 +210,9 @@ const BarGraphDisplay: React.FC<{
           const barColor = cat.color || BAR_COLORS[index % BAR_COLORS.length];
           const isActive = activeCategory === cat.name;
           const isMaxValue = highlightMax && userValue === maxValue && userValue > 0;
-          
           return (
-            <g 
-              key={cat.name} 
+            <g
+              key={cat.name}
               onClick={() => isInteractive && onBarClick(cat.name)}
               className={`${isInteractive ? 'cursor-pointer group' : ''}`}
               aria-label={`Categoría ${cat.name}, valor actual ${userValue}. ${isActive ? 'Actualmente seleccionada.' : isInteractive ? 'Haz clic para seleccionar.' : ''}`}
@@ -220,31 +227,30 @@ const BarGraphDisplay: React.FC<{
                 className={`transition-all duration-300 ease-in-out ${
                   isMaxValue ? 'stroke-yellow-500 stroke-2' : ''
                 } ${
-                  isActive ? 'opacity-100 ring-2 ring-offset-1 ring-sky-500' : 
+                  isActive ? 'opacity-100 ring-2 ring-offset-1 ring-sky-500' :
                   isInteractive ? 'opacity-70 group-hover:opacity-90' : 'opacity-90'
                 }`}
               />
               {/* Bar Label */}
-              <text 
-                x={xPos + barWidth / 2} 
-                y={padding.top + plotHeight + 15} 
-                textAnchor="middle" 
-                fontSize={isActive ? "11" : "9"} 
+              <text
+                x={xPos + barWidth / 2}
+                y={padding.top + plotHeight + 15}
+                textAnchor="middle"
+                fontSize={isActive ? "11" : "9"}
                 fill={isActive ? "rgb(2, 132, 199)" : "rgb(71 85 105)"}
                 fontWeight={isActive ? "bold" : "normal"}
                 className={`transition-all duration-150 ease-in-out ${!isActive && isInteractive ? 'group-hover:fill-sky-600' : ''}`}
               >
                 {cat.name}
               </text>
-              
               {/* Value label on top of the bar if there's a value */}
               {userValue > 0 && (
-                <text 
-                  x={xPos + barWidth / 2} 
-                  y={padding.top + plotHeight - barHeight - 3} 
-                  textAnchor="middle" 
-                  fontSize="8" 
-                  fill="rgb(50,50,50)" 
+                <text
+                  x={xPos + barWidth / 2}
+                  y={padding.top + plotHeight - barHeight - 3}
+                  textAnchor="middle"
+                  fontSize="8"
+                  fill="rgb(50,50,50)"
                   className="font-semibold pointer-events-none"
                 >
                   {userValue}
@@ -253,8 +259,8 @@ const BarGraphDisplay: React.FC<{
             </g>
           );
         })}
-      </svg>
-
+        </svg>
+      </div>
       {/* We'll remove the controls from here and put them in the sidebar */}
     </div>
   );
