@@ -199,18 +199,54 @@ export const UbicarEnTablaExercise: React.FC<UbicarEnTablaExerciseProps> = ({
   const currentGeneratedQuestion = activeScenario?.questions[currentQuestionIndex];
 
   const handleOptionSelect = (option: string) => {
+    console.log('handleOptionSelect called with:', option);
+    // Don't block selection if already verified correct - only condition where we should block
     if (isVerified && selectedOption === currentGeneratedQuestion?.correctAnswer) return;
+    
+    // Always set the selected option
     setSelectedOption(option);
+    
+    // Clear any feedback
     showFeedback(null);
-    if (isVerified && selectedOption !== currentGeneratedQuestion?.correctAnswer) setIsVerified(false);
+    
+    // If a different option was selected after verification, reset verification state
+    if (isVerified) {
+      console.log('Resetting verification state');
+      setIsVerified(false);
+    }
   };
 
   const verifyAnswer = useCallback(() => {
-    if (!currentGeneratedQuestion || !activeScenario || selectedOption === null || (isVerified && selectedOption === currentGeneratedQuestion.correctAnswer)) return;
+    console.log('verifyAnswer called, selectedOption:', selectedOption);
+    
+    // Validation checks
+    if (!currentGeneratedQuestion || !activeScenario) {
+      console.log('Missing question or scenario data');
+      return;
+    }
+    
+    if (selectedOption === null) {
+      console.log('No option selected');
+      return;
+    }
+    
+    // Skip if already verified correct answer
+    if (isVerified && selectedOption === currentGeneratedQuestion.correctAnswer) {
+      console.log('Answer already verified as correct');
+      return;
+    }
+    
+    // Set verification state
     setIsVerified(true);
+    
+    // Check if answer is correct
     const isCorrect = selectedOption === currentGeneratedQuestion.correctAnswer;
+    console.log('Answer is', isCorrect ? 'correct' : 'incorrect');
+    
+    // Notify scaffold of attempt
     onAttempt(isCorrect);
 
+    // Show appropriate feedback
     if (isCorrect) {
       showFeedback({ type: 'correct', message: '¡Muy bien! Respuesta Correcta.' });
     } else {
@@ -219,7 +255,7 @@ export const UbicarEnTablaExercise: React.FC<UbicarEnTablaExerciseProps> = ({
   }, [currentGeneratedQuestion, activeScenario, selectedOption, isVerified, showFeedback, onAttempt]);
   
   const SimpleGridTable: React.FC<{ title: string; gridData: UbicarEnTablaItem[][] }> = ({ title, gridData }) => {
-    const numRows = gridData.length;
+    // Remove unused numRows variable
     const numCols = gridData[0]?.length || 0;
     return (
       <div className="w-full max-w-xs sm:max-w-sm p-2 sm:p-3 bg-white rounded-lg shadow overflow-x-auto">
@@ -253,11 +289,20 @@ export const UbicarEnTablaExercise: React.FC<UbicarEnTablaExerciseProps> = ({
   // OptionsSidebar component, now passed to setExternalKeypad
   const OptionsSidebar: React.FC = () => {
     if (!currentGeneratedQuestion) return null;
+    
+    // Add console logging for debugging button interactions
+    const handleOptionClick = (option: string) => {
+      console.log('Button clicked:', option);
+      handleOptionSelect(option);
+    };
+    
     return (
       <div className="w-full flex flex-col space-y-1.5 sm:space-y-2 p-2 mt-4">
         {currentGeneratedQuestion.options.map((option, index) => {
           const isSelected = selectedOption === option; 
           let buttonClass = 'bg-white text-slate-700 hover:bg-sky-50 focus:ring-2 focus:ring-sky-400';
+          
+          // Revised button state logic
           if (isSelected) {
             if (isVerified) {
               buttonClass = option === currentGeneratedQuestion.correctAnswer 
@@ -267,39 +312,75 @@ export const UbicarEnTablaExercise: React.FC<UbicarEnTablaExerciseProps> = ({
               buttonClass = 'bg-sky-100 text-sky-700 ring-2 ring-sky-500';
             }
           } else if (isVerified && option === currentGeneratedQuestion.correctAnswer) {
-            // buttonClass = 'bg-green-200 text-green-700 ring-1 ring-green-400'; // Optionally highlight
+            buttonClass = 'bg-green-200 text-green-700 ring-1 ring-green-400'; // Now enabled
           } else if (isVerified) {
-            buttonClass = 'bg-slate-200 text-slate-500 cursor-not-allowed';
+            // Only disable appearance but still allow interactions
+            buttonClass = 'bg-slate-200 text-slate-600';
           }
+          
+          // Only disable the button if the answer is already verified and correct
+          const shouldDisable = isVerified && selectedOption === currentGeneratedQuestion.correctAnswer;
+          
           return (
-            <button key={index} onClick={() => handleOptionSelect(option)} disabled={isVerified && selectedOption === currentGeneratedQuestion.correctAnswer} 
-                    className={`w-full p-2.5 sm:p-3 rounded-lg text-center text-sm sm:text-md font-semibold transition-all duration-150 ease-in-out shadow-sm hover:shadow-md ${buttonClass}`}>
+            <button 
+              key={index} 
+              onClick={() => handleOptionClick(option)} 
+              disabled={shouldDisable}
+              className={`w-full p-2.5 sm:p-3 rounded-lg text-center text-sm sm:text-md font-semibold transition-all duration-150 ease-in-out shadow-sm hover:shadow-md ${buttonClass}`}
+            >
               {option}
             </button>
           );
         })}
-        <button onClick={verifyAnswer} disabled={!selectedOption || (isVerified && selectedOption === currentGeneratedQuestion.correctAnswer)}
-                className={`w-full p-3 mt-2 rounded-lg flex items-center justify-center font-semibold text-white shadow-md transition-colors ${(!selectedOption || (isVerified && selectedOption === currentGeneratedQuestion.correctAnswer)) ? 'bg-slate-300 cursor-not-allowed' : 'bg-yellow-400 hover:bg-yellow-500 focus:ring-2 focus:ring-yellow-600'}`}>
+        <button 
+          onClick={() => {
+            console.log('Verify button clicked');
+            verifyAnswer();
+          }} 
+          disabled={!selectedOption || (isVerified && selectedOption === currentGeneratedQuestion.correctAnswer)}
+          className={`w-full p-3 mt-2 rounded-lg flex items-center justify-center font-semibold text-white shadow-md transition-colors ${(!selectedOption || (isVerified && selectedOption === currentGeneratedQuestion.correctAnswer)) ? 'bg-slate-300 cursor-not-allowed' : 'bg-yellow-400 hover:bg-yellow-500 focus:ring-2 focus:ring-yellow-600'}`}
+        >
           <Icons.CheckIcon className="w-5 h-5 mr-2" /> Verificar
         </button>
       </div>
     );
   };
 
+  // Ensure keypad is properly rendered and updated
   useEffect(() => {
+    console.log('External keypad effect running', {
+      hasSetExternalKeypad: !!setExternalKeypad,
+      hasQuestion: !!currentGeneratedQuestion,
+      selectedOption,
+      isVerified
+    });
+    
     if (setExternalKeypad) {
       if (currentGeneratedQuestion) {
+        // Pass the keypad component with the latest state
         setExternalKeypad(<OptionsSidebar />);
+        console.log('External keypad component set');
       } else {
-         setExternalKeypad(null); 
+        setExternalKeypad(null);
+        console.log('External keypad set to null - no current question');
       }
     }
+    
+    // Cleanup function
     return () => {
       if (setExternalKeypad) {
         setExternalKeypad(null);
+        console.log('External keypad cleanup');
       }
     };
-  }, [setExternalKeypad, currentGeneratedQuestion, selectedOption, isVerified, handleOptionSelect, verifyAnswer]);
+  }, [
+    setExternalKeypad, 
+    currentGeneratedQuestion, 
+    selectedOption, 
+    isVerified
+    // Note: handleOptionSelect and verifyAnswer are derived from the above state
+    // and don't need to be in the dependency array
+  ]);
 
 
   const MainContent: React.FC = () => {
